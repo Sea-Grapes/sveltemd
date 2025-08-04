@@ -33,8 +33,14 @@ function markdown() {
   return {
     name: 'markdown',
     markup({ content, filename }: { content: string; filename: string }) {
-      if (filename && filename.endsWith('.md')) {
+      console.log(filename)
+
+      if (filename.endsWith('.md')) {
         return html(content)
+      }
+
+      if(filename.endsWith('layout.md.svelte')) {
+        
       }
     },
   }

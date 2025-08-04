@@ -1,3 +1,7 @@
+---
+test: val1
+---
+
 <script>
   let test = $state(1)
 </script>
