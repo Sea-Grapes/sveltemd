@@ -11,9 +11,9 @@ async function parse_md(string: string) {
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(string)
 
-  return res
-
-
+  // toString is actually unnecessary (my guess
+  // is replace calls toString), but it helps with clarity
+  return res.toString()
 }
 
 async function html(content: string) {
@@ -21,7 +21,6 @@ async function html(content: string) {
   const { start, end } = svast.html
   const string = content.slice(start, end)
   const html = await parse_md(string)
-
 
   return {
     // @ts-ignore
@@ -33,7 +32,7 @@ async function html(content: string) {
 function markdown() {
   return {
     name: 'markdown',
-    markup({ content, filename }: { content: string, filename: string }) {
+    markup({ content, filename }: { content: string; filename: string }) {
       if (filename && filename.endsWith('.md')) {
         return html(content)
       }
