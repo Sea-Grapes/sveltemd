@@ -1,0 +1,6 @@
+{
+  "name": "sveltemd",
+  "scripts": {
+    "dev": "pnpm -r run dev"
+  }
+}

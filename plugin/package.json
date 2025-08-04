@@ -1,0 +1,24 @@
+{
+  "name": "sveltemd",
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "svelte": "^5.37.3",
+    "unified": "^11.0.5"
+  },
+  "dependencies": {
+    "rehype-stringify": "^10.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2"
+  }
+}
