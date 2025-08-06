@@ -4,6 +4,7 @@ import remarkRehype from 'remark-rehype'
 import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
+import fs from 'fs'
 
 async function parse_md(string: string) {
   let res = await unified()
@@ -32,7 +33,7 @@ async function parse_svm(content: string) {
 
 function markdown() {
   const layout_data = {}
-  const layout_paths = globSync('./**/layout.md.svelte')
+  const layout_paths = globSync('./**/layout.md.*')
   console.log(layout_paths)
 
   // const watcher = chokidar.watch('.', {
@@ -42,6 +43,15 @@ function markdown() {
   // })
 
   // watcher.on('change', (path: string) => {})
+
+  layout_paths.forEach(layout => {
+    const text = fs.readFileSync(layout, 'utf-8')
+    const svast = parse(text)
+
+    console.log(svast)
+    
+    // layout_data[layout] = 
+  })
 
   return {
     name: 'markdown',
