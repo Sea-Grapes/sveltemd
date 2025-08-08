@@ -32,6 +32,11 @@ async function parse_svm(content: string) {
 }
 
 function markdown() {
+
+  // layout.md purpose is it only wraps markdown files?
+  // also you can customize where it applies relative to files
+  // by default it doesn't apply to same directory, only children
+  // 
   const layout_data = {}
   const layout_paths = globSync('./**/layout.md.*')
   console.log(layout_paths)
@@ -44,13 +49,13 @@ function markdown() {
 
   // watcher.on('change', (path: string) => {})
 
-  layout_paths.forEach(layout => {
+  layout_paths.forEach((layout) => {
     const text = fs.readFileSync(layout, 'utf-8')
     const svast = parse(text)
 
     console.log(svast)
-    
-    // layout_data[layout] = 
+
+    // layout_data[layout] =
   })
 
   return {
