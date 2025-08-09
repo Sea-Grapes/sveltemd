@@ -1,5 +1,9 @@
+---
+title: test post 1
+---
+
 <script module>
-  export const meta = {
+  export const test = {
     test: 'test'
   }
 </script>
