@@ -1,3 +1,4 @@
+import { resolve } from '$app/paths'
 import { page } from '$app/state'
 
 export function frontmatter({} = {}) {
@@ -8,7 +9,7 @@ export function frontmatter({} = {}) {
   const filter = Object.entries(files)
     .filter(([key, val]) => key.startsWith('/src/routes' + currentPath))
     .map(([url, val]: [string, any]) => ({
-      url,
+      url: url.split('/').slice(3, -1).join('/'),
       ...val.metadata,
     }))
 

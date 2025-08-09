@@ -10,4 +10,11 @@
   <title>Test App</title>
 </svelte:head>
 
-{@render children?.()}
+<div>
+  <nav>
+    <a href='/'>home</a>
+  </nav>
+  <main>
+    {@render children?.()}
+  </main>
+</div>
