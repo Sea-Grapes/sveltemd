@@ -3,6 +3,22 @@ import { page } from '$app/state'
 // import matter from 'gray-matter'
 
 const files = import.meta.glob('/src/routes/**/*.md', { eager: true })
+console.log(files)
+
+// const process = Object.fromEntries(
+//   Object.entries(files).map(([path, module]) => {
+//     const content = (module as any).default
+
+//     console.log(module)
+
+//     return [
+//       path,
+//       {
+//         content
+//       }
+//     ]
+//   })
+// )
 
 export function globData({} = {}) {
   const currentPath = page.route.id || ''

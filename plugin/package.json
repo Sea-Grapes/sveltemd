@@ -6,19 +6,23 @@
   "type": "module",
   "main": "./dist/index.js",
   "exports": {
-    "import": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./frontmatter": "./src/frontmatter.ts"
   },
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc"
   },
   "devDependencies": {
+    "@sveltejs/kit": "^2.27.1",
     "svelte": "^5.37.3",
-    "unified": "^11.0.5"
+    "unified": "^11.0.5",
+    "vite": "^7.0.6"
   },
   "dependencies": {
     "@types/node": "^24.2.0",
     "chokidar": "^4.0.3",
+    "gray-matter": "^4.0.3",
     "rehype-stringify": "^10.0.1",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",

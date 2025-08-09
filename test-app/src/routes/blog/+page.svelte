@@ -1,7 +1,7 @@
 <script>
-	import { globData } from "$lib/test";
+  import { frontmatter } from "sveltemd/frontmatter"
 
-  let data = globData()
+  let test = frontmatter()
 
-  console.log(data)
+  console.log(test)
 </script>

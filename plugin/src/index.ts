@@ -5,6 +5,7 @@ import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
 import fs from 'fs'
+import matter from 'gray-matter'
 
 async function parse_md(string: string) {
   let res = await unified()
@@ -18,25 +19,25 @@ async function parse_md(string: string) {
   return res.toString()
 }
 
-async function parse_svm(content: string) {
+async function parse_svm(md_file: string) {
+  const { data, content } = matter(md_file)
+
   const svast = parse(content)
   const { start, end } = svast.html
   const string = content.slice(start, end)
   const html = await parse_md(string)
 
   return {
-    // @ts-ignore
     code: content.replace(string, html),
+    data,
   }
-  return content
 }
 
 function markdown() {
-
   // layout.md purpose is it only wraps markdown files?
   // also you can customize where it applies relative to files
   // by default it doesn't apply to same directory, only children
-  // 
+  //
   const layout_data = {}
   const layout_paths = globSync('./**/layout.md.*')
   console.log(layout_paths)
