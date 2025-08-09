@@ -5,22 +5,33 @@ export function frontmatter({} = {}) {
 
   const currentPath = page.route.id || ''
 
-  const filter = Object.fromEntries(
-    Object.entries(files)
-      .filter(([key, val]) => key.startsWith('/src/routes' + currentPath))
-      .map(([path, module]) => {
-        const content = (module as any).default
+  const filter = Object.entries(files)
+    .filter(([key, val]) => key.startsWith('/src/routes' + currentPath))
+    .map(([url, val]: [string, any]) => ({
+      url,
+      ...val.metadata,
+    }))
 
-        // console.log(module)
+  // const filter = Object.fromEntries(
+  //   Object.entries(files)
+  //     .filter(([key, val]) => key.startsWith('/src/routes' + currentPath))
+  //     .map(([path, module]) => {
+  //       let mod = module as any
 
-        return [
-          path,
-          {
-            content,
-          },
-        ]
-      })
-  )
+  //       return {
+  //         ...mod.metadata,
+  //       }
+  //     })
+  // .map(([path, module]) => {
+  //   let res: any = {}
+  //   const mod = module as any
+
+  //   res.content = mod.default
+  //   if (mod.metadata) res.metadata = mod.metadata
+
+  //   return [path, res]
+  // })
+  // )
   // Object.values(modules).forEach((e) => {
   // 	console.log(e())
   // })

@@ -12,7 +12,7 @@ import matter from 'gray-matter'
 function get_layout_paths(): string[] {
   // glob is relative to svelte.config.js, so /root dir
   const layout_paths = globSync('./**/md.*')
-  console.log(layout_paths)
+  // console.log(layout_paths)
   return layout_paths
 }
 
@@ -30,35 +30,45 @@ async function md_to_html_str(string: string) {
 
 async function parse_svm(md_file: string, filename: string) {
   const { data, content } = matter(md_file)
+  let code = content
 
   const svast = parse(content)
 
-  let code = content
+  let input = {
+    module: svast.module && content.slice(svast.module.start, svast.module.end),
+    module_inner:
+      svast.module &&
+      content.slice(svast.module.content.start, svast.module.content.end),
+    html:
+      svast.html.start != null &&
+      content.slice(svast.html.start, svast.html.end),
+  }
+
+  if (input.html) {
+    let output = await md_to_html_str(input.html)
+    code = code.replace(input.html, output)
+  }
 
   // if frontmatter, inject into module script
   if (data) {
     // console.log(svast.module.content)
-    if (svast.module) {
-      let module = content.slice(svast.module.start, svast.module.end)
-
-      let innertext = content.slice(
-        svast.module.content.start,
-        svast.module.content.end
-      )
-
+    if (input.module) {
       let meta_inject =
-        `\n  export const metadata = ${JSON.stringify(data)};\n` + innertext
+        `\n  export const metadata = ${JSON.stringify(data)};\n` +
+        input.module_inner
 
-      let module_2 = module.replace(innertext, meta_inject)
+      // console.log(meta_inject)
+      // console.log(input.module_inner)
 
+      let output = input.module.replace(input.module_inner, meta_inject)
+      code = code.replace(input.module, output)
+    } else {
+      let meta_inject = `\n  export const metadata = ${JSON.stringify(data)};\n`
+      code = `<script module>${meta_inject}</script>\n` + code
     }
   }
 
-  if (svast.html?.start) {
-    let html = content.slice(svast.html.start, svast.html.end)
-    let replace = await md_to_html_str(html)
-    code = code.replace(html, replace)
-  }
+  // console.log(code)
 
   return {
     code,
