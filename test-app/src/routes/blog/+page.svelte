@@ -6,11 +6,11 @@
   console.log(posts)
 </script>
 
-<h1 class="text-3xl font-bold">Blog Posts</h1>
+<h1>Blog Posts</h1>
 
-<div class="grid grid-auto gap-8">
+<div>
   {#each posts as post}
-    <a href={post.url} class='p-4 bg-slate-100 block'>
+    <a href={post.url}>
       <h1>{post.title || 'unknown post'}</h1>
     </a>
   {/each}
