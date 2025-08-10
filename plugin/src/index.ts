@@ -6,12 +6,18 @@ import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
 import fs from 'fs'
 import matter from 'gray-matter'
+import path from 'path'
+import slash from 'slash'
 
 // this is "fine" to fetch every time a markdown page is loaded
 // the alternative is file-watching, which may work poorly
-function get_layout_paths(): string[] {
+function get_layout_paths(filename: string): string[] {
   // glob is relative to svelte.config.js, so /root dir
   const layout_paths = globSync('./**/md.*')
+
+  console.log(filename, layout_paths)
+
+  console.log(slash(path.relative(process.cwd(), filename)))
   // console.log(layout_paths)
   return layout_paths
 }
@@ -31,17 +37,21 @@ async function md_to_html_str(string: string) {
 async function parse_svm(md_file: string, filename: string) {
   const { data, content } = matter(md_file)
   let code = content
-
   const svast = parse(content)
+  // console.log(svast)
+
+  const extractSection = (section: any) => {
+    if (!section) return
+    if (section.start == section.end) return
+    return content.slice(section.start, section.end)
+  }
 
   let input = {
-    module: svast.module && content.slice(svast.module.start, svast.module.end),
-    module_inner:
-      svast.module &&
-      content.slice(svast.module.content.start, svast.module.content.end),
-    html:
-      svast.html.start != null &&
-      content.slice(svast.html.start, svast.html.end),
+    html: extractSection(svast.html),
+    module: extractSection(svast.module),
+    module_inner: svast.module && extractSection(svast.module.content),
+    instance: extractSection(svast.instance),
+    instance_inner: svast.instance && extractSection(svast.instance.content),
   }
 
   if (input.html) {
@@ -51,14 +61,10 @@ async function parse_svm(md_file: string, filename: string) {
 
   // if frontmatter, inject into module script
   if (data) {
-    // console.log(svast.module.content)
     if (input.module) {
       let meta_inject =
         `\n  export const metadata = ${JSON.stringify(data)};\n` +
         input.module_inner
-
-      // console.log(meta_inject)
-      // console.log(input.module_inner)
 
       let output = input.module.replace(input.module_inner, meta_inject)
       code = code.replace(input.module, output)
@@ -68,7 +74,11 @@ async function parse_svm(md_file: string, filename: string) {
     }
   }
 
-  // console.log(code)
+  let layouts = get_layout_paths(filename)
+  if (layouts.length) {
+    if (input.instance) {
+    }
+  }
 
   return {
     code,
@@ -76,8 +86,7 @@ async function parse_svm(md_file: string, filename: string) {
 }
 
 export default function markdown() {
-  console.log('plugin generates')
-  get_layout_paths()
+  console.log('plugin generated')
 
   return {
     name: 'markdown',
