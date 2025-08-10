@@ -38,21 +38,18 @@ function get_layout_paths(filename: string): string[] {
 
   return layout_paths.filter((path) => file_path.startsWith(path))
 }
+const md_parser = unified()
+  .use(remarkParse)
+  .use(remarkRehype, { allowDangerousHtml: true })
+  .use(rehypeStringify, { allowDangerousHtml: true })
 
-async function md_to_html_str(string: string) {
-  let res = await unified()
-    .use(remarkParse)
-    .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeStringify, { allowDangerousHtml: true })
-    .process(string)
-
-  // toString is actually unnecessary (my guess
-  // is replace calls toString), but it helps with clarity
-  return res.toString()
+function md_to_html_str(string: string) {
+  return md_parser.processSync(string).toString()
 }
 
 async function parse_svm(md_file: string, filename: string) {
   const { data, content } = matter(md_file)
+  // content = content.trim()
   const svast = parse(content, { modern: true })
 
   console.log(svast)
@@ -89,9 +86,23 @@ async function parse_svm(md_file: string, filename: string) {
     }
   }
 
-  if(svast.fragment) {
-    let html = svast.fragment.nodes.map((te xt) => text.data)
+  if (svast.fragment) {
+    let html = svast.fragment.nodes
+      .map((node) => {
+        let text = content.slice(node.start, node.end)
+        if (node.type === 'Text') text = md_to_html_str(text)
+        return text
+      })
+      .join('')
+    // console.log(html)
+
+    res += html
   }
+
+  // if (svast.fragment) {
+  //   let html = svast.fragment.nodes.filter(node => )
+  //   })
+  // }
 
   // if (svast.html) {
   //   let html = svast.html.children.map((child: any) => child.raw).join('')
