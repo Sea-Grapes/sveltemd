@@ -24,6 +24,9 @@ interface PluginConfig {
 let plugin: PluginConfig = {
   extensions: ['.md', '.svx'],
   layout_file_name: 'md.svelte',
+  internal: {
+    indent: ' ',
+  },
 }
 
 // this is "fine" to fetch every time a markdown page is loaded
@@ -55,6 +58,7 @@ function md_to_html_str(string: string) {
 
 async function parse_svm(md_file: string, filename: string) {
   const { data, content } = matter(md_file)
+  let has_data = Object.keys(data).length > 0
   // content = content.trim()
   const svast = parse(content, { modern: true })
 
@@ -84,13 +88,10 @@ async function parse_svm(md_file: string, filename: string) {
   }
 
   let layouts = get_layout_paths(filename)
-  console.log(layouts)
 
   if (svast.instance) {
     let instance = extract(svast.instance)
     let content = extract(svast.instance?.content)
-
-    console.log(content)
 
     if (layouts.length) {
       let imports =
@@ -107,6 +108,13 @@ async function parse_svm(md_file: string, filename: string) {
 
     res += instance
   } else if (layouts.length) {
+    let imports =
+      '<script>\n' +
+      layouts
+        .map((path, i) => `  import SVELTEMD_LAYOUT_${i} from '${path}'`)
+        .join('\n') +
+      '\n</script>\n'
+    res += imports
   }
 
   if (svast.fragment) {
@@ -117,9 +125,15 @@ async function parse_svm(md_file: string, filename: string) {
         return text
       })
       .join('')
+
+    if (layouts.length) {
+      html = layouts.reduceRight((content, layout, i) => {
+        return `<SVELTEMD_LAYOUT_${i} ${has_data? '{...metadata}': ''}>\n${content}\n</SVELTEMD_LAYOUT_${i}>`
+      }, html)
+    }
     // console.log(html)
 
-    res += html
+    res += '\n' + html + '\n'
   }
 
   console.log(res)
