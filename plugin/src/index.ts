@@ -62,8 +62,8 @@ async function parse_svm(md_file: string, filename: string) {
   // content = content.trim()
   const svast = parse(content, { modern: true })
 
-  // console.log(svast)
-  // console.log(svast.fragment.nodes)
+  console.log(svast)
+  console.log(svast.fragment.nodes)
 
   let res = ''
 
@@ -101,7 +101,7 @@ async function parse_svm(md_file: string, filename: string) {
           .join('\n') +
         '\n'
 
-      console.log(imports)
+      // console.log(imports)
 
       instance = instance.replace(content, imports + content)
     }
@@ -128,7 +128,9 @@ async function parse_svm(md_file: string, filename: string) {
 
     if (layouts.length) {
       html = layouts.reduceRight((content, layout, i) => {
-        return `<SVELTEMD_LAYOUT_${i} ${has_data? '{...metadata}': ''}>\n${content}\n</SVELTEMD_LAYOUT_${i}>`
+        return `<SVELTEMD_LAYOUT_${i} ${
+          has_data ? '{...metadata}' : ''
+        }>\n${content}\n</SVELTEMD_LAYOUT_${i}>`
       }, html)
     }
     // console.log(html)
@@ -136,7 +138,9 @@ async function parse_svm(md_file: string, filename: string) {
     res += '\n' + html + '\n'
   }
 
-  console.log(res)
+  // res = md_to_html_str(res)
+
+  // console.log(res)
   // if (svast.fragment) {
   //   let html = svast.fragment.nodes.filter(node => )
   //   })
