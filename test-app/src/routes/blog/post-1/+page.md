@@ -9,9 +9,14 @@ title: test post 1
 </script>
 
 <script>
-  let test = $state('test')
+  let test = $state(true)
   console.log(test)
 </script>
+
+{#if test}
+
+  <p>test is true {test}</p>
+{/if}
 
 # post
 

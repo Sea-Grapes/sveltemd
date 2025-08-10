@@ -109,7 +109,7 @@ async function parse_svm(md_file: string, filename: string) {
     res += instance
   } else if (layouts.length) {
     let imports =
-      '<script>\n' +
+      '\n<script>\n' +
       layouts
         .map((path, i) => `  import SVELTEMD_LAYOUT_${i} from '${path}'`)
         .join('\n') +
@@ -118,25 +118,46 @@ async function parse_svm(md_file: string, filename: string) {
   }
 
   if (svast.fragment) {
+    // let html = svast.fragment.nodes
+    //   .map((node) => {
+    //     let text = content.slice(node.start, node.end)
+    //     if (node.type === 'Text') text = md_to_html_str(text)
+    //     return text
+    //   })
+    //   .join('')
+
+    let save: string[] = []
+
     let html = svast.fragment.nodes
       .map((node) => {
         let text = content.slice(node.start, node.end)
-        if (node.type === 'Text') text = md_to_html_str(text)
+        if (node.type !== 'RegularElement' && node.type !== 'Text') {
+          let i = save.length
+          save.push(text)
+          return `%%SVELTEMD_PLACEHOLDER_${i}%%`
+        }
         return text
       })
       .join('')
+    html = md_to_html_str(html)
+
+    save.forEach((text, i) => {
+      html = html.replace(`%%SVELTEMD_PLACEHOLDER_${i}%%`, text)
+    })
 
     if (layouts.length) {
-      html = layouts.reduceRight((content, layout, i) => {
+      html = layouts.reduce((content, layout, i) => {
         return `<SVELTEMD_LAYOUT_${i} ${
           has_data ? '{...metadata}' : ''
         }>\n${content}\n</SVELTEMD_LAYOUT_${i}>`
       }, html)
     }
+
     // console.log(html)
 
     res += '\n' + html + '\n'
   }
+  console.log(res)
 
   // res = md_to_html_str(res)
 

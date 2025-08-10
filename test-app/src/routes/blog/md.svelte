@@ -4,10 +4,9 @@
   let { children, title } = $props()
 </script>
 
-<section class="prose">
-  <header>
-    <h1>{titleCase(title) || 'Unknown'}</h1>
-  </header>
 
-  {@render children?.()}
-</section>
+<header>
+  <h1>{titleCase(title) || 'Unknown'}</h1>
+</header>
+
+{@render children?.()}
