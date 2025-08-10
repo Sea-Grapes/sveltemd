@@ -10,9 +10,15 @@ importers:
 
   plugin:
     dependencies:
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/node':
         specifier: ^24.2.0
         version: 24.2.0
+      '@types/unist':
+        specifier: ^3.0.3
+        version: 3.0.3
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3
@@ -37,6 +43,9 @@ importers:
       typescript:
         specifier: ^5
         version: 5.9.2
+      unist-util-visit:
+        specifier: ^5.0.0
+        version: 5.0.0
     devDependencies:
       '@sveltejs/kit':
         specifier: ^2.27.1
