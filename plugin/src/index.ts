@@ -25,13 +25,16 @@ let plugin: PluginConfig = {
 // the alternative is file-watching, which may work poorly
 function get_layout_paths(filename: string): string[] {
   // glob is relative to svelte.config.js, so /root dir
-  const layout_paths = globSync('./**/md.*')
+  const layout_paths = globSync('./**/md.*').map((str) =>
+    str.split('/').slice(0, -1).join('/')
+  )
 
-  console.log(filename, layout_paths)
+  const file_path = slash(path.relative(process.cwd(), filename))
+    .split('/')
+    .slice(0, -1)
+    .join('/')
 
-  console.log(slash(path.relative(process.cwd(), filename)))
-  // console.log(layout_paths)
-  return layout_paths
+  return layout_paths.filter((path) => file_path.startsWith(path))
 }
 
 async function md_to_html_str(string: string) {
@@ -66,6 +69,11 @@ async function parse_svm(md_file: string, filename: string) {
     instance_inner: svast.instance && extractSection(svast.instance.content),
   }
 
+  console.log('html for ' + filename)
+  console.log(svast.html)
+  console.log(input.html)
+  console.log()
+
   if (input.html) {
     let output = await md_to_html_str(input.html)
     code = code.replace(input.html, output)
@@ -87,6 +95,9 @@ async function parse_svm(md_file: string, filename: string) {
   }
 
   let layouts = get_layout_paths(filename)
+
+  // console.log(layouts)
+
   if (layouts.length) {
     if (input.instance) {
     }
