@@ -16,6 +16,9 @@ interface PluginConfig {
   extension?: Extension
   extensions?: Extension[]
   layout_file_name?: string
+  internal?: {
+    indent: string
+  }
 }
 
 let plugin: PluginConfig = {
@@ -26,18 +29,21 @@ let plugin: PluginConfig = {
 // this is "fine" to fetch every time a markdown page is loaded
 // the alternative is file-watching, which may work poorly
 function get_layout_paths(filename: string): string[] {
-  // glob is relative to svelte.config.js, so /root dir
-  const layout_paths = globSync('./**/md.*').map((str) =>
-    str.split('/').slice(0, -1).join('/')
-  )
+  const layout_paths = globSync('./**/md.*')
 
   const file_path = slash(path.relative(process.cwd(), filename))
     .split('/')
     .slice(0, -1)
     .join('/')
 
-  return layout_paths.filter((path) => file_path.startsWith(path))
+  return layout_paths
+    .filter((layout_file) => {
+      const layout_dir = path.dirname(layout_file)
+      return file_path.startsWith(layout_dir)
+    })
+    .map((str) => '/' + str)
 }
+
 const md_parser = unified()
   .use(remarkParse)
   .use(remarkRehype, { allowDangerousHtml: true })
@@ -52,8 +58,8 @@ async function parse_svm(md_file: string, filename: string) {
   // content = content.trim()
   const svast = parse(content, { modern: true })
 
-  console.log(svast)
-  console.log(svast.fragment.nodes)
+  // console.log(svast)
+  // console.log(svast.fragment.nodes)
 
   let res = ''
 
@@ -62,28 +68,45 @@ async function parse_svm(md_file: string, filename: string) {
     return content.slice(section.start, section.end)
   }
 
-  // if frontmatter, inject into module script
-  if (data) {
-    if (svast.module) {
-      let module = extract(svast.module)
-      let content = extract(svast.module.content)
+  if (svast.module) {
+    let module = extract(svast.module)
+    let content = extract(svast.module.content)
 
-      let meta = data
-        ? `\n  export const metadata = ${JSON.stringify(data)};\n`
-        : ''
-      let content_2 = meta + content
-      res += module.replace(content, content_2)
-    } else {
-      let meta = `\n  export const metadata = ${JSON.stringify(data)};\n`
-      res += `<script module>${meta}</script>\n`
-    }
+    let meta = data
+      ? `\n  export const metadata = ${JSON.stringify(data)};\n`
+      : ''
+    let content_2 = meta + content
+
+    res += module.replace(content, content_2)
+  } else if (data) {
+    let meta = `\n  export const metadata = ${JSON.stringify(data)};\n`
+    res += `<script module>${meta}</script>\n`
   }
 
   let layouts = get_layout_paths(filename)
+  console.log(layouts)
 
-  if (layouts.length) {
-    if (svast.instance) {
+  if (svast.instance) {
+    let instance = extract(svast.instance)
+    let content = extract(svast.instance?.content)
+
+    console.log(content)
+
+    if (layouts.length) {
+      let imports =
+        '\n' +
+        layouts
+          .map((path, i) => `  import SVELTEMD_LAYOUT_${i} from '${path}'`)
+          .join('\n') +
+        '\n'
+
+      console.log(imports)
+
+      instance = instance.replace(content, imports + content)
     }
+
+    res += instance
+  } else if (layouts.length) {
   }
 
   if (svast.fragment) {
@@ -99,6 +122,7 @@ async function parse_svm(md_file: string, filename: string) {
     res += html
   }
 
+  console.log(res)
   // if (svast.fragment) {
   //   let html = svast.fragment.nodes.filter(node => )
   //   })

@@ -7,6 +7,8 @@
 </prose>
 
 <style>
+  @reference 'tailwindcss';
+
   prose {
     @apply space-y-8;
   }
