@@ -60,7 +60,7 @@ async function parse_svm(md_file: string, filename: string) {
   const { data, content } = matter(md_file)
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
-  const svast = parse(content, { modern: true })
+  const svast = parse(content, { modern: true, loose: true })
 
   console.log('Svast for ' + filename)
   console.log(svast)
