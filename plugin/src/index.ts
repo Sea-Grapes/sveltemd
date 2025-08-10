@@ -8,6 +8,8 @@ import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
 
+import type { AST } from 'svelte/compiler'
+
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
 interface PluginConfig {
@@ -51,60 +53,55 @@ async function md_to_html_str(string: string) {
 
 async function parse_svm(md_file: string, filename: string) {
   const { data, content } = matter(md_file)
-  let code = content
-  const svast = parse(content)
-  // console.log(svast)
+  const svast = parse(content, { modern: true })
 
-  const extractSection = (section: any) => {
-    if (!section) return
-    if (section.start == section.end) return
+  console.log(svast)
+  console.log(svast.fragment.nodes)
+
+  let res = ''
+
+  const extract = (section: any): string => {
+    if (!section || section.start == section.end) return ''
     return content.slice(section.start, section.end)
-  }
-
-  let input = {
-    html: extractSection(svast.html),
-    module: extractSection(svast.module),
-    module_inner: svast.module && extractSection(svast.module.content),
-    instance: extractSection(svast.instance),
-    instance_inner: svast.instance && extractSection(svast.instance.content),
-  }
-
-  console.log('html for ' + filename)
-  console.log(svast.html)
-  console.log(input.html)
-  console.log()
-
-  if (input.html) {
-    let output = await md_to_html_str(input.html)
-    code = code.replace(input.html, output)
   }
 
   // if frontmatter, inject into module script
   if (data) {
-    if (input.module) {
-      let meta_inject =
-        `\n  export const metadata = ${JSON.stringify(data)};\n` +
-        input.module_inner
+    if (svast.module) {
+      let module = extract(svast.module)
+      let content = extract(svast.module.content)
 
-      let output = input.module.replace(input.module_inner, meta_inject)
-      code = code.replace(input.module, output)
+      let meta = data
+        ? `\n  export const metadata = ${JSON.stringify(data)};\n`
+        : ''
+      let content_2 = meta + content
+      res += module.replace(content, content_2)
     } else {
-      let meta_inject = `\n  export const metadata = ${JSON.stringify(data)};\n`
-      code = `<script module>${meta_inject}</script>\n` + code
+      let meta = `\n  export const metadata = ${JSON.stringify(data)};\n`
+      res += `<script module>${meta}</script>\n`
     }
   }
 
   let layouts = get_layout_paths(filename)
 
-  // console.log(layouts)
-
   if (layouts.length) {
-    if (input.instance) {
+    if (svast.instance) {
     }
   }
 
+  if(svast.fragment) {
+    let html = svast.fragment.nodes.map((te xt) => text.data)
+  }
+
+  // if (svast.html) {
+  //   let html = svast.html.children.map((child: any) => child.raw).join('')
+
+  //   let output = await md_to_html_str(html)
+  //   res += output
+  // }
+
   return {
-    code,
+    code: res,
   }
 }
 
