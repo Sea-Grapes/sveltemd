@@ -62,7 +62,9 @@ async function parse_svm(md_file: string, filename: string) {
   // content = content.trim()
   const svast = parse(content, { modern: true })
 
+  console.log('Svast for ' + filename)
   console.log(svast)
+  console.log('Svast fragment nodes:')
   console.log(svast.fragment.nodes)
 
   let res = ''
