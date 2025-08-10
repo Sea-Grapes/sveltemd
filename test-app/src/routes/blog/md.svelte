@@ -1,9 +1,13 @@
 <script>
+  import { titleCase } from 'title-case'
+
   let { children, title } = $props()
 </script>
 
-<header>
-  <h1>{title || 'Unknown'}</h1>
-</header>
+<section class="prose">
+  <header>
+    <h1>{titleCase(title) || 'Unknown'}</h1>
+  </header>
 
-{@render children?.()}
+  {@render children?.()}
+</section>

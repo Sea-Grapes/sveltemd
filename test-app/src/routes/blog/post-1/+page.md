@@ -17,15 +17,8 @@ title: test post 1
 
 this is a test post example
 
-{#if test}
-
-  <p>{test}</p>
-{/if}
-
 <style>
   h1 {
     font-size: 2rem;
   }
 </style>
-
-# test

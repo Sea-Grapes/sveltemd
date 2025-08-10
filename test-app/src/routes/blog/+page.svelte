@@ -22,4 +22,8 @@
   .grid-auto {
     grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
   }
+
+  a > h1 {
+    font-size: 1.5rem;
+  }
 </style>

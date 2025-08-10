@@ -32,7 +32,7 @@ let plugin: PluginConfig = {
 // this is "fine" to fetch every time a markdown page is loaded
 // the alternative is file-watching, which may work poorly
 function get_layout_paths(filename: string): string[] {
-  const layout_paths = globSync('./**/md.*')
+  const layout_paths = globSync('./**/md.svelte')
 
   const file_path = slash(path.relative(process.cwd(), filename))
     .split('/')
