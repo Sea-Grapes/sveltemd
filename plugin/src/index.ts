@@ -1,15 +1,14 @@
+import matter from 'gray-matter'
+import path from 'path'
 import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
+import slash from 'slash'
 import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
-import fs from 'fs'
-import matter from 'gray-matter'
-import path from 'path'
-import slash from 'slash'
 
-type Extension = '.md' | '.svelte' | '.svx' | string
+type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
 interface PluginConfig {
   extension?: Extension
@@ -18,7 +17,7 @@ interface PluginConfig {
 }
 
 let plugin: PluginConfig = {
-  extensions: ['.md'],
+  extensions: ['.md', '.svx'],
   layout_file_name: 'md.svelte',
 }
 
