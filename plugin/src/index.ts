@@ -9,6 +9,19 @@ import matter from 'gray-matter'
 import path from 'path'
 import slash from 'slash'
 
+type Extension = '.md' | '.svelte' | '.svx' | string
+
+interface PluginConfig {
+  extension?: Extension
+  extensions?: Extension[]
+  layout_file_name?: string
+}
+
+let plugin: PluginConfig = {
+  extensions: ['.md'],
+  layout_file_name: 'md.svelte',
+}
+
 // this is "fine" to fetch every time a markdown page is loaded
 // the alternative is file-watching, which may work poorly
 function get_layout_paths(filename: string): string[] {
@@ -85,8 +98,13 @@ async function parse_svm(md_file: string, filename: string) {
   }
 }
 
-export default function markdown() {
+export default function markdown(config: PluginConfig) {
   console.log('plugin generated')
+
+  plugin = {
+    ...plugin,
+    ...config,
+  }
 
   return {
     name: 'markdown',
