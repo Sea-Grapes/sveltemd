@@ -12,6 +12,7 @@ import { Root, RootContent } from 'mdast'
 
 import type { AST } from 'svelte/compiler'
 import { visit } from 'unist-util-visit'
+import rehypeRaw from 'rehype-raw'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -77,9 +78,15 @@ function remarkPreserveSvelte() {
 
 const md_parser = unified()
   .use(remarkParse)
-  .use(remarkPreserveSvelte)
-  .use(remarkRehype, { allowDangerousHtml: true })
-  .use(rehypeStringify, { allowDangerousHtml: true })
+  .use(remarkRehype, {
+    allowDangerousHtml: true,
+    allowDangerousCharacters: true,
+  })
+  // .use(rehypeRaw)
+  .use(rehypeStringify, {
+    allowDangerousHtml: true,
+    allowDangerousCharacters: true,
+  })
 
 function md_to_html_str(string: string) {
   return md_parser.processSync(string).toString()
@@ -96,8 +103,31 @@ async function parse_svm(md_file: string, filename: string) {
     return content.slice(section.start, section.end)
   }
 
+  let res = content
+
+  let save: string[] = []
+
+  console.log('Matches:')
+  console.log(res.match(/\{[#/:@][^}]*\}/g))
+
+  res = res.replace(/\{[#/:@][^}]*\}/g, (match) => {
+    const id = `%%SVELTEMD_${save.length}%%`
+    save.push(match)
+    return id
+  })
+
+  res = md_to_html_str(res)
+
+  res = res.replace(/<p>\s*(%%SVELTEMD_\d+%%)\s*<\/p>/g, '$1')
+
+  save.forEach((text, i) => {
+    res = res.replace(`%%SVELTEMD_${i}%%`, text)
+  })
+
+  console.log(res)
+
   return {
-    code: md_to_html_str(content),
+    code: res,
   }
 }
 
