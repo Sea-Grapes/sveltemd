@@ -13,6 +13,7 @@ import { Root, RootContent } from 'mdast'
 import type { AST } from 'svelte/compiler'
 import { visit } from 'unist-util-visit'
 import rehypeRaw from 'rehype-raw'
+import remarkHtml from 'remark-html'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -76,8 +77,21 @@ function remarkPreserveSvelte() {
   }
 }
 
+function rawHtml() {
+  return (tree: Root) => {
+    visit(tree, 'html', (node) => {
+      console.log(node.type)
+      // Turn the HTML into a "raw" HTML node so it's passed through
+      // @ts-ignore
+      node.type = 'raw'
+    })
+  }
+}
+
 const md_parser = unified()
   .use(remarkParse)
+  // .use(rawHtml)
+  // .use(remarkHtml, { sanitize: false })
   .use(remarkRehype, {
     allowDangerousHtml: true,
     allowDangerousCharacters: true,
@@ -106,6 +120,9 @@ async function parse_svm(md_file: string, filename: string) {
   let res = content
 
   let save: string[] = []
+
+  // console.log('starting file')
+  // console.log(content)
 
   console.log('Matches:')
   console.log(res.match(/\{[#/:@][^}]*\}/g))

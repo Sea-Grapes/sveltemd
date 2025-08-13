@@ -54,9 +54,9 @@ You've clicked **{count} times**! That's quite a lot.
 - This is a markdown list
 - Inside an if block
 - With **bold text**
-  {:else if count > 0}
+{:else if count > 0}
   Keep clicking! Current count: `{count}`
-  {:else}
+{:else}
   Click the button to get started.
   {/if}
 
