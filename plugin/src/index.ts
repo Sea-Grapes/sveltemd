@@ -4,16 +4,12 @@ import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import slash from 'slash'
-import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
+import { parseEntities } from 'parse-entities'
 
-import { Root, RootContent } from 'mdast'
-
-import type { AST } from 'svelte/compiler'
+import { Root } from 'mdast'
 import { visit } from 'unist-util-visit'
-import rehypeRaw from 'rehype-raw'
-import remarkHtml from 'remark-html'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -88,22 +84,46 @@ function rawHtml() {
   }
 }
 
+function test() {
+  return (tree: Root) => {
+    visit(tree, 'paragraph', (node, index, parent) => {
+      // Check if paragraph starts with {
+      const firstChild = node.children[0]
+      if (
+        parent &&
+        index &&
+        firstChild?.type === 'text' &&
+        firstChild.value.trim().startsWith('{')
+      ) {
+        // Convert to raw HTML - this preserves any markdown inside
+        const content = node.children
+          .map((child) => (child.type === 'text' ? child.value : ''))
+          .join('')
+
+        parent.children[index] = {
+          type: 'html',
+          value: content,
+        }
+      }
+    })
+  }
+}
+
 const md_parser = unified()
   .use(remarkParse)
+  .use(test)
   // .use(rawHtml)
   // .use(remarkHtml, { sanitize: false })
   .use(remarkRehype, {
     allowDangerousHtml: true,
-    allowDangerousCharacters: true,
   })
   // .use(rehypeRaw)
   .use(rehypeStringify, {
     allowDangerousHtml: true,
-    allowDangerousCharacters: true,
   })
 
 function md_to_html_str(string: string) {
-  return md_parser.processSync(string).toString()
+  return String(md_parser.processSync(string))
 }
 
 async function parse_svm(md_file: string, filename: string) {
@@ -124,22 +144,22 @@ async function parse_svm(md_file: string, filename: string) {
   // console.log('starting file')
   // console.log(content)
 
-  console.log('Matches:')
-  console.log(res.match(/\{[#/:@][^}]*\}/g))
+  // console.log('Matches:')
+  // console.log(res.match(/\{[#/:@][^}]*\}/g))
 
-  res = res.replace(/\{[#/:@][^}]*\}/g, (match) => {
-    const id = `%%SVELTEMD_${save.length}%%`
-    save.push(match)
-    return id
-  })
+  // res = res.replace(/\{[#/:@][^}]*\}/g, (match) => {
+  //   const id = `%%SVELTEMD_${save.length}%%`
+  //   save.push(match)
+  //   return id
+  // })
 
-  res = md_to_html_str(res)
+  res = parseEntities(md_to_html_str(res))
 
-  res = res.replace(/<p>\s*(%%SVELTEMD_\d+%%)\s*<\/p>/g, '$1')
+  // res = res.replace(/<p>\s*(%%SVELTEMD_\d+%%)\s*<\/p>/g, '$1')
 
-  save.forEach((text, i) => {
-    res = res.replace(`%%SVELTEMD_${i}%%`, text)
-  })
+  // save.forEach((text, i) => {
+  //   res = res.replace(`%%SVELTEMD_${i}%%`, text)
+  // })
 
   console.log(res)
 

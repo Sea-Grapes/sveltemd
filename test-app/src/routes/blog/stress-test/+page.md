@@ -36,29 +36,11 @@ This is a **markdown paragraph** with _italic text_ and [a link](https://example
 ### State and Derived
 
 Current count: {count} (doubled: {doubled})
-
-<button onclick={() => count++}>
-Increment Count
-</button>
+<button onclick={() => count++}>Increment Count</button>
 
 The count is {isEven ? 'even' : 'odd'}.
 
 ### Conditional Rendering
-
-{#if count > 5}
-
-## High Count Alert!
-
-You've clicked **{count} times**! That's quite a lot.
-
-- This is a markdown list
-- Inside an if block
-- With **bold text**
-{:else if count > 0}
-  Keep clicking! Current count: `{count}`
-{:else}
-  Click the button to get started.
-  {/if}
 
 ### Each Blocks with Markdown
 
@@ -66,7 +48,7 @@ You've clicked **{count} times**! That's quite a lot.
 {index + 1}. **{item}** - This item is _{item.length}_ characters long.
 
 > This is a blockquote inside an each block.
-> {/each}
+{/each}
 
 <button onclick={addItem}>Add Item</button>
 
