@@ -48,7 +48,7 @@ The count is {isEven ? 'even' : 'odd'}.
 {index + 1}. **{item}** - This item is _{item.length}_ characters long.
 
 > This is a blockquote inside an each block.
-{/each}
+> {/each}
 
 <button onclick={addItem}>Add Item</button>
 
@@ -69,33 +69,16 @@ The count is {isEven ? 'even' : 'odd'}.
 
 ### Await Blocks
 
-{#await fetch('/api/data')}
-
-## Loading...
-
-_Please wait while we fetch your data._
-{:then response}
-
-## Success!
-
-Data loaded: **{response.status}**
-{:catch error}
-
-## Error
-
-Something went wrong: `{error.message}`
-{/await}
-
 ### Key Blocks
 
 {#key count}
 This content re-renders when count changes: **{count}**
 
 ```json
-{
+&lbrace;
   "count": {count},
   "doubled": {doubled}
-}
+&rbrace;
 ```
 
 {/key}
@@ -179,12 +162,10 @@ items={items.slice(0, 2)}
 This tests **all major Svelte 5 features** mixed with markdown:
 
 1. **Runes**: `$state`, `$derived`, `$effect`
-2. **Logic blocks**: `{#if}`, `{#each}`, `{#await}`, `{#key}`
-3. **Interpolations**: Simple and complex expressions
-4. **Event handlers**: `onclick`, `bind:value`
-5. **Snippets**: `{#snippet}` and `{@render}`
-6. **Reactive attributes**: `class:`, `style:`
-7. **Components**: Custom component usage
-8. **HTML mixing**: Native HTML elements with Svelte features
+2. **Interpolations**: Simple and complex expressions
+3. **Event handlers**: `onclick`, `bind:value`
+4. **Reactive attributes**: `class:`, `style:`
+5. **Components**: Custom component usage
+6. **HTML mixing**: Native HTML elements with Svelte features
 
 _End of stress test!_
