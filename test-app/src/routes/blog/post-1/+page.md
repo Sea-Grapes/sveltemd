@@ -2,16 +2,12 @@
 title: test post 1
 ---
 
-<script module>
-  export const test = {
-    test: 'test'
-  }
-</script>
-
 <script>
   let test = $state(true)
   console.log(test)
 </script>
+
+
 
 {#if test}
 

@@ -1,6 +1,8 @@
 <script lang="ts">
   import '../app.css'
   import favicon from '$lib/assets/favicon.svg'
+  import { page } from '$app/state'
+  import { fade } from 'svelte/transition'
 
   let { children } = $props()
 </script>
@@ -15,9 +17,11 @@
     <a href="/">home</a>
     <a href="/blog">blog</a>
   </nav>
-  <main>
-    {@render children?.()}
-  </main>
+  {#key page.url}
+    <main in:fade>
+      {@render children?.()}
+    </main>
+  {/key}
 </div>
 
 <style>
