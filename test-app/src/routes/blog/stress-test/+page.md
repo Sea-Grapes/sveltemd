@@ -54,11 +54,16 @@ You've clicked **{count} times**! That's quite a lot.
 - This is a markdown list
 - Inside an if block
 - With **bold text**
-  {:else if count > 0}
-  Keep clicking! Current count: `{count}`
-  {:else}
-  Click the button to get started.
-  {/if}
+
+{:else if count > 0}
+
+Keep clicking! Current count: `{count}`
+
+{:else}
+
+Click the button to get started.
+
+{/if}
 
 ### Each Blocks with Markdown
 
@@ -66,7 +71,8 @@ You've clicked **{count} times**! That's quite a lot.
 {index + 1}. **{item}** - This item is _{item.length}_ characters long.
 
 > This is a blockquote inside an each block.
-> {/each}
+
+{/each}
 
 <button onclick={addItem}>Add Item</button>
 
@@ -80,29 +86,10 @@ You've clicked **{count} times**! That's quite a lot.
       const hasA = item.includes('a')
       console.log(hasA)
       ```
-    {/if}
 
+{/if}
 {/each}
 {/if}
-
-### Await Blocks
-
-{#await fetch('/api/data')}
-
-## Loading...
-
-_Please wait while we fetch your data._
-{:then response}
-
-## Success!
-
-Data loaded: **{response.status}**
-{:catch error}
-
-## Error
-
-Something went wrong: `{error.message}`
-{/await}
 
 ### Key Blocks
 
@@ -110,10 +97,10 @@ Something went wrong: `{error.message}`
 This content re-renders when count changes: **{count}**
 
 ```json
-{
+&lbrace;
   "count": {count},
   "doubled": {doubled}
-}
+&rbrace;
 ```
 
 {/key}
@@ -197,10 +184,10 @@ items={items.slice(0, 2)}
 This tests **all major Svelte 5 features** mixed with markdown:
 
 1. **Runes**: `$state`, `$derived`, `$effect`
-2. **Logic blocks**: `{#if}`, `{#each}`, `{#await}`, `{#key}`
+2. **Logic blocks**: `&lbrace;#if}`, `&lbrace;#each}`, `&lbrace;#await}`, `&lbrace;#key}`
 3. **Interpolations**: Simple and complex expressions
 4. **Event handlers**: `onclick`, `bind:value`
-5. **Snippets**: `{#snippet}` and `{@render}`
+5. **Snippets**: `&lbrace;#snippet}` and `&lbrace;@render}`
 6. **Reactive attributes**: `class:`, `style:`
 7. **Components**: Custom component usage
 8. **HTML mixing**: Native HTML elements with Svelte features

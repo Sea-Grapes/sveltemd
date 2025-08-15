@@ -4,10 +4,11 @@ import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import slash from 'slash'
+import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
-import { parseEntities } from 'parse-entities'
-import { parse } from 'svelte/compiler'
+
+import type { AST } from 'svelte/compiler'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -46,43 +47,27 @@ function get_layout_paths(filename: string): string[] {
     .map((str) => '/' + str)
 }
 
-// allowDangerousHtml = allow script tag
 const md_parser = unified()
   .use(remarkParse)
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeStringify, { allowDangerousHtml: true })
 
 function md_to_html_str(string: string) {
-  return String(md_parser.processSync(string))
+  return md_parser.processSync(string).toString()
 }
 
 async function parse_svm(md_file: string, filename: string) {
-  console.log('Processing file:', filename)
-  let { data, content } = matter(md_file)
+  const { data, content } = matter(md_file)
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
+  const svast = parse(content, { modern: true, loose: true })
 
-
-  let svelte_logic: string[] = []
-
-  // escape svelte logic blocks
-  content = content.replace(/\{[#/:@][^}]*\}/g, (match) => {
-    const id = `<div data-svelte-block="${svelte_logic.length}"></div>`
-    svelte_logic.push(match)
-    return id
-  })
-
-  content = md_to_html_str(content)
-  content = parseEntities(content)
-
-  // contenttore svelte logic blocks
-  svelte_logic.forEach((text, i) => {
-    content = content.replace(`<div data-svelte-block="${i}"></div>`, text)
-  })
+  console.log('Svast for ' + filename)
+  console.log(svast)
+  console.log('Svast fragment nodes:')
+  console.log(svast.fragment.nodes)
 
   let res = ''
-
-  const svast = parse(content, { modern: true })
 
   const extract = (section: any): string => {
     if (!section || section.start == section.end) return ''
@@ -118,6 +103,8 @@ async function parse_svm(md_file: string, filename: string) {
           .join('\n') +
         '\n'
 
+      // console.log(imports)
+
       instance = instance.replace(content, imports + content)
     }
 
@@ -133,14 +120,32 @@ async function parse_svm(md_file: string, filename: string) {
   }
 
   if (svast.fragment) {
+    // let html = svast.fragment.nodes
+    //   .map((node) => {
+    //     let text = content.slice(node.start, node.end)
+    //     if (node.type === 'Text') text = md_to_html_str(text)
+    //     return text
+    //   })
+    //   .join('')
+
     let save: string[] = []
 
     let html = svast.fragment.nodes
       .map((node) => {
         let text = content.slice(node.start, node.end)
+        if (node.type !== 'RegularElement' && node.type !== 'Text') {
+          let i = save.length
+          save.push(text)
+          return `%%SVELTEMD_PLACEHOLDER_${i}%%`
+        }
         return text
       })
       .join('')
+    html = md_to_html_str(html)
+
+    save.forEach((text, i) => {
+      html = html.replace(`%%SVELTEMD_PLACEHOLDER_${i}%%`, text)
+    })
 
     if (layouts.length) {
       html = layouts.reduce((content, layout, i) => {
@@ -150,8 +155,26 @@ async function parse_svm(md_file: string, filename: string) {
       }, html)
     }
 
+    // console.log(html)
+
     res += '\n' + html + '\n'
   }
+  console.log(res)
+
+  // res = md_to_html_str(res)
+
+  // console.log(res)
+  // if (svast.fragment) {
+  //   let html = svast.fragment.nodes.filter(node => )
+  //   })
+  // }
+
+  // if (svast.html) {
+  //   let html = svast.html.children.map((child: any) => child.raw).join('')
+
+  //   let output = await md_to_html_str(html)
+  //   res += output
+  // }
 
   return {
     code: res,
