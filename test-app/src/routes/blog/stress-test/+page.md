@@ -82,10 +82,10 @@ Click the button to get started.
 {#each items as item}
 {#if item.includes('a')} - `{item}` contains the letter **a**
 
-      ```javascript
-      const hasA = item.includes('a')
-      console.log(hasA)
-      ```
+```javascript
+const hasA = item.includes('a')
+console.log(hasA)
+```
 
 {/if}
 {/each}
