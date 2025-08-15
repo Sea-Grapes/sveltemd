@@ -31,6 +31,9 @@ importers:
       slash:
         specifier: ^5.1.0
         version: 5.1.0
+      stringify-entities:
+        specifier: ^4.0.4
+        version: 4.0.4
       tinyglobby:
         specifier: ^0.2.14
         version: 0.2.14
