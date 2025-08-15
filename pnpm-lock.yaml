@@ -10,15 +10,9 @@ importers:
 
   plugin:
     dependencies:
-      '@types/mdast':
-        specifier: ^4.0.4
-        version: 4.0.4
       '@types/node':
         specifier: ^24.2.0
         version: 24.2.0
-      '@types/unist':
-        specifier: ^3.0.3
-        version: 3.0.3
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3

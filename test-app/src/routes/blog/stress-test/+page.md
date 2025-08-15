@@ -48,7 +48,8 @@ The count is {isEven ? 'even' : 'odd'}.
 {index + 1}. **{item}** - This item is _{item.length}_ characters long.
 
 > This is a blockquote inside an each block.
-> {/each}
+
+{/each}
 
 <button onclick={addItem}>Add Item</button>
 
@@ -62,7 +63,8 @@ The count is {isEven ? 'even' : 'odd'}.
       const hasA = item.includes('a')
       console.log(hasA)
       ```
-    {/if}
+
+{/if}
 
 {/each}
 {/if}
@@ -163,9 +165,10 @@ This tests **all major Svelte 5 features** mixed with markdown:
 
 1. **Runes**: `$state`, `$derived`, `$effect`
 2. **Interpolations**: Simple and complex expressions
-3. **Event handlers**: `onclick`, `bind:value`
-4. **Reactive attributes**: `class:`, `style:`
-5. **Components**: Custom component usage
-6. **HTML mixing**: Native HTML elements with Svelte features
+3. This is a test `&lbrace;#if&rbrace;`
+4. **Event handlers**: `onclick`, `bind:value`
+5. **Reactive attributes**: `class:`, `style:`
+6. **Components**: Custom component usage
+7. **HTML mixing**: Native HTML elements with Svelte features
 
 _End of stress test!_

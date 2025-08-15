@@ -21,9 +21,7 @@
     "vite": "^7.0.6"
   },
   "dependencies": {
-    "@types/mdast": "^4.0.4",
     "@types/node": "^24.2.0",
-    "@types/unist": "^3.0.3",
     "chokidar": "^4.0.3",
     "gray-matter": "^4.0.3",
     "parse-entities": "^4.0.2",

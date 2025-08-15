@@ -8,7 +8,6 @@ import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
 import { parseEntities } from 'parse-entities'
 
-import { Parent, Root } from 'mdast'
 import { visit } from 'unist-util-visit'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
@@ -48,31 +47,7 @@ function get_layout_paths(filename: string): string[] {
     .map((str) => '/' + str)
 }
 
-function remarkPreserveSvelte() {
-  return (tree: Root) => {
-    visit(tree, (node, index, parent) => {
-      console.log(node)
-
-      // If there's no parent or index, bail (root node, etc.)
-      if (!parent || index === undefined) return
-
-      // Don't touch fenced or inline code blocks
-      if (node.type === 'code' || node.type === 'inlineCode') {
-        return
-      }
-
-      // Only process text nodes that contain curly braces
-      if (node.type === 'text' && /\{[^}]+\}/.test(node.value)) {
-        // Replace the text node with an HTML node so Svelte sees it as raw
-        parent.children[index] = {
-          type: 'html',
-          value: node.value,
-        }
-      }
-    })
-  }
-}
-
+/*
 function rawHtml() {
   return (tree: Root) => {
     visit(tree, 'html', (node) => {
@@ -84,20 +59,48 @@ function rawHtml() {
   }
 }
 
+function splitSvelteBlocks() {
+  return (tree: Root) => {
+    visit(tree, 'paragraph', (node, index, parent) => {
+      if (!parent || index === undefined) return
+
+      // Check if paragraph has Svelte blocks
+      const hasSvelteBlocks = node.children.some(
+        (child) => child.type === 'text' && /\{[^}]+\}/.test(child.value)
+      )
+
+      if (!hasSvelteBlocks) return
+
+      // For now, just convert the whole paragraph to HTML
+      // (We can get fancier later if needed)
+      parent.children[index] = {
+        type: 'html',
+        value: node.children.map((child) => child?.value || '').join(''),
+      }
+    })
+  }
+}*/
+
+// function svelteLogic() {
+//   return(tree: Root) => {
+//     visit(tree, 'paragraph', (node, index, parent) => {
+//       if(!parent || !index) return;
+
+//     })
+//   }
+// }
+
+// function rehypeSvelteLogic() {
+//   return(tree: Root) => {
+
+//   }
+// }
+
 const md_parser = unified()
   .use(remarkParse)
-  //   .use(() => {
-  //     return (tree) => {
-  //       console.log('MDAST after remarkSvelteLogic:')
-  //       console.log(JSON.stringify(tree, null, 2))
-  //     }
-  //   })
-  // .use(rawHtml)
-  // .use(remarkHtml, { sanitize: false })
   .use(remarkRehype, {
     allowDangerousHtml: true,
   })
-  // .use(rehypeRaw)
   .use(rehypeStringify, {
     allowDangerousHtml: true,
   })
@@ -126,22 +129,29 @@ async function parse_svm(md_file: string, filename: string) {
   console.log('starting file')
   console.log(content)
 
-  // console.log('Matches:')
-  // console.log(res.match(/\{[#/:@][^}]*\}/g))
+  // res = res.replace(/\{[#/:@][^}]*\}/g, (match) => {
+  //   const id = `\n\n%%SVELTEMD_${save.length}%%\n\n`
+  //   save.push(match)
+  //   return id
+  // })
 
   res = res.replace(/\{[#/:@][^}]*\}/g, (match) => {
-    const id = `\n\n%%SVELTEMD_${save.length}%%\n\n`
+    const id = `<div data-svelte-block="${save.length}"></div>`
     save.push(match)
     return id
   })
 
   res = parseEntities(md_to_html_str(res))
 
-  res = res.replace(/<p>\s*(%%SVELTEMD_\d+%%)\s*<\/p>/g, '$1')
-
   save.forEach((text, i) => {
-    res = res.replace(`%%SVELTEMD_${i}%%`, text)
+    res = res.replace(`<div data-svelte-block="${i}"></div>`, text)
   })
+
+  // res = res.replace(/<p>\s*(%%SVELTEMD_\d+%%)\s*<\/p>/g, '$1')
+
+  // save.forEach((text, i) => {
+  //   res = res.replace(`%%SVELTEMD_${i}%%`, text)
+  // })
 
   console.log('final output:')
   console.log(res)
