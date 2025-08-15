@@ -8,7 +8,7 @@ import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
 import { parseEntities } from 'parse-entities'
 
-import { Root } from 'mdast'
+import { Parent, Root } from 'mdast'
 import { visit } from 'unist-util-visit'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
@@ -84,26 +84,33 @@ function rawHtml() {
   }
 }
 
-function test() {
+function remarkSvelteLogic() {
   return (tree: Root) => {
-    visit(tree, 'paragraph', (node, index, parent) => {
-      // Check if paragraph starts with {
-      const firstChild = node.children[0]
-      if (
-        parent &&
-        index &&
-        firstChild?.type === 'text' &&
-        firstChild.value.trim().startsWith('{')
-      ) {
-        // Convert to raw HTML - this preserves any markdown inside
-        const content = node.children
-          .map((child) => (child.type === 'text' ? child.value : ''))
-          .join('')
+    visit(tree, 'text', (node, index, parent) => {
+      if (!index || !parent) return
+      const text = node.value
+      const svelteLogicRegex = /(\{[#/:@].*?\})/g
 
-        parent.children[index] = {
-          type: 'html',
-          value: content,
-        }
+      if (svelteLogicRegex.test(text)) {
+        const parts = text.split(svelteLogicRegex)
+        const newNodes = parts
+          .map((part) => {
+            if (part.match(svelteLogicRegex)) {
+              return {
+                type: 'html',
+                value: part,
+              }
+            }
+            return {
+              type: 'text',
+              value: part,
+            }
+          })
+          .filter((node) => node.value)
+
+        // @ts-ignore
+        parent.children.splice(index, 1, ...newNodes)
+        return index + newNodes.length
       }
     })
   }
@@ -111,7 +118,13 @@ function test() {
 
 const md_parser = unified()
   .use(remarkParse)
-  .use(test)
+  .use(remarkSvelteLogic)
+  .use(() => {
+    return (tree) => {
+      console.log('MDAST after remarkSvelteLogic:')
+      console.log(JSON.stringify(tree, null, 2))
+    }
+  })
   // .use(rawHtml)
   // .use(remarkHtml, { sanitize: false })
   .use(remarkRehype, {
@@ -129,6 +142,8 @@ function md_to_html_str(string: string) {
 async function parse_svm(md_file: string, filename: string) {
   const { data, content } = matter(md_file)
   let has_data = Object.keys(data).length > 0
+
+  console.log('Processing file:', filename)
   // content = content.trim()
   // const svast = parse(content, { modern: true })
 
@@ -161,6 +176,7 @@ async function parse_svm(md_file: string, filename: string) {
   //   res = res.replace(`%%SVELTEMD_${i}%%`, text)
   // })
 
+  console.log('final output:')
   console.log(res)
 
   return {
