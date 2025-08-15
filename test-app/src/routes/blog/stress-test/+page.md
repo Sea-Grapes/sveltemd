@@ -168,7 +168,11 @@ Items starting with vowels: {items.filter(item => /^[aeiou]/i.test(item)).join('
 ### Reactive Classes and Styles
 
 <div class:highlight={count > 10} style:color={count > 5 ? 'red' : 'blue'}>
-  This div changes **appearance** based on count: {count}
+
+[helpful link about commonmark](https://stackoverflow.com/questions/29368902/how-can-i-wrap-my-markdown-in-an-html-div)
+
+This div changes **appearance** based on count: {count}
+
 </div>
 
 ### Component Usage
