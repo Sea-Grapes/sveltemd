@@ -62,7 +62,6 @@ async function parse_svm(md_file: string, filename: string) {
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
 
-
   let svelte_logic: string[] = []
 
   // escape svelte logic blocks
@@ -83,6 +82,7 @@ async function parse_svm(md_file: string, filename: string) {
   let res = ''
 
   const svast = parse(content, { modern: true })
+  // console.log(svast)
 
   const extract = (section: any): string => {
     if (!section || section.start == section.end) return ''
@@ -151,6 +151,10 @@ async function parse_svm(md_file: string, filename: string) {
     }
 
     res += '\n' + html + '\n'
+  }
+
+  if (svast.css) {
+    res += extract(svast.css)
   }
 
   return {

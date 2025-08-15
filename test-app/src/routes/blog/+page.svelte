@@ -1,10 +1,12 @@
 <script>
   import { frontmatter } from 'sveltemd/frontmatter'
+  import { titleCase } from 'title-case'
 
   let posts = frontmatter()
 
   console.log(posts)
 </script>
+
 
 <section>
   <h1>Blog Posts</h1>
@@ -12,7 +14,7 @@
   <div>
     {#each posts as post}
       <a href={post.url}>
-        <h1>{post.title || 'unknown post'}</h1>
+        <h1>{titleCase(post.title) || 'unknown post'}</h1>
       </a>
     {/each}
   </div>
