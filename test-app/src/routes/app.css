@@ -54,7 +54,11 @@ button[primary] {
   padding: 0.25rem;
 }
 
-.prose {
+article {
+  margin: 0 auto;
+  padding-inline: var(--s1-5);
+  padding-block: 6rem;
+
   max-width: 100ch;
   text-wrap: pretty;
   line-height: 1.75;

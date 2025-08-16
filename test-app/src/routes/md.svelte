@@ -2,6 +2,6 @@
   let { children } = $props()
 </script>
 
-<section class="prose">
+<article>
   {@render children?.()}
-</section>
+</article>
