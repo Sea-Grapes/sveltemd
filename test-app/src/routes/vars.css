@@ -1,0 +1,21 @@
+:root {
+  --gray-50: #fafafa;
+  --gray-100: #f4f4f5;
+  --gray-200: #e2e8f0;
+  --gray-400: #a1a1aa;
+  --gray-600: #52525b;
+  --gray-800: #27272a;
+  --main-100: #f0f9ff;
+  --main-200: #e0f2fe;
+  --main-400: #7dd3fc;
+  --main: #00c2ff;
+
+  --main-600: #0284c7;
+  --s1-5: clamp(1rem, 5vw, 5rem);
+  
+  --screen-lg: 1024px;
+  --screen-xl: 1280px;
+  --screen-2xl: 1536px;
+
+  --round-full: calc(infinity * 1px);
+}

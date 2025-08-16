@@ -27,6 +27,8 @@ date: '2025-08-10'
   }
 </script>
 
+> Note: this test file was generated using Claude because I have zero creativity.
+
 # Main Heading
 
 This is a **markdown paragraph** with _italic text_ and [a link](https://example.com).
@@ -41,7 +43,7 @@ Current count: {count} (doubled: {doubled})
   this is a test
 </div>
 
-<button onclick={() => count++}>Increment count</button>
+<button primary onclick={() => count++}>Increment count</button>
 
 The count is {isEven ? 'even' : 'odd'}.
 
@@ -70,6 +72,7 @@ Click the button to get started.
 ### Each Blocks with Markdown
 
 {#each items as item, index}
+
 {index + 1}. **{item}** - This item is _{item.length}_ characters long.
 
 > This is a blockquote inside an each block.
@@ -82,7 +85,9 @@ Click the button to get started.
 
 {#if user}
 {#each items as item}
-{#if item.includes('a')} - `{item}` contains the letter **a**
+{#if item.includes('a')}
+
+- `{item}` contains the letter **a**
 
 ```javascript
 const hasA = item.includes('a')
@@ -96,6 +101,7 @@ console.log(hasA)
 ### Key Blocks
 
 {#key count}
+
 This content re-renders when count changes: **{count}**
 
 ```json

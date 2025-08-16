@@ -1,5 +1,6 @@
 <script lang="ts">
-  import '../app.css'
+  import './app.css'
+  import './vars.css'
   import favicon from '$lib/assets/favicon.svg'
   import { page } from '$app/state'
   import { fade } from 'svelte/transition'
