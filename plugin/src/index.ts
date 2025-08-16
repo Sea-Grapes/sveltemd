@@ -1,13 +1,16 @@
 import matter from 'gray-matter'
+import { parseEntities } from 'parse-entities'
 import path from 'path'
 import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import slash from 'slash'
+import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
-import { parseEntities } from 'parse-entities'
-import { parse } from 'svelte/compiler'
+import { visit } from 'unist-util-visit'
+
+import { Code, InlineCode, Root } from 'mdast'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -46,11 +49,43 @@ function get_layout_paths(filename: string): string[] {
     .map((str) => '/' + str)
 }
 
+const svelte_err = Object.entries({
+  '{': '&lbrace;',
+  '}': '&rbrace;',
+  '<': '&lt;',
+  '>': '&gt;',
+})
+
+function escape_code(string: string) {
+  for (const [key, value] of svelte_err) {
+    string = string.replaceAll(key, value)
+  }
+  return string
+}
+
+function remark_escape_code() {
+  function escape(node: Code | InlineCode) {
+    node.value = escape_code(node.value)
+  }
+
+  return function (tree: Root) {
+    visit(tree, 'code', escape)
+    visit(tree, 'inlineCode', escape)
+  }
+}
+
 // allowDangerousHtml = allow script tag
 const md_parser = unified()
   .use(remarkParse)
-  .use(remarkRehype, { allowDangerousHtml: true })
-  .use(rehypeStringify, { allowDangerousHtml: true })
+  .use(remark_escape_code)
+  .use(remarkRehype, {
+    allowDangerousHtml: true,
+    allowDangerousCharacters: true,
+  })
+  .use(rehypeStringify, {
+    allowDangerousHtml: true,
+    allowDangerousCharacters: true,
+  })
 
 function md_to_html_str(string: string) {
   return String(md_parser.processSync(string))
@@ -74,10 +109,11 @@ async function parse_svm(md_file: string, filename: string) {
   content = md_to_html_str(content)
   content = parseEntities(content)
 
-  // contenttore svelte logic blocks
+  // restore svelte logic blocks
   svelte_logic.forEach((text, i) => {
     content = content.replace(`<div data-svelte-block="${i}"></div>`, text)
   })
+  console.log(content)
 
   let res = ''
 

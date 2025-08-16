@@ -37,9 +37,11 @@ This is a **markdown paragraph** with _italic text_ and [a link](https://example
 
 Current count: {count} (doubled: {doubled})
 
-<button onclick={() => count++}>
-Increment Count
-</button>
+<div>
+  this is a test
+</div>
+
+<button onclick={() => count++}>Increment count</button>
 
 The count is {isEven ? 'even' : 'odd'}.
 
@@ -97,10 +99,10 @@ console.log(hasA)
 This content re-renders when count changes: **{count}**
 
 ```json
-&lbrace;
+{
   "count": {count},
   "doubled": {doubled}
-&rbrace;
+}
 ```
 
 {/key}
