@@ -10,7 +10,9 @@ import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
 import { visit } from 'unist-util-visit'
 
-import { Code, InlineCode, Root } from 'mdast'
+import { codeToHtml } from 'shiki'
+
+import { Code, InlineCode, Node, Root } from 'mdast'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -63,21 +65,36 @@ function escape_code(string: string) {
   return string
 }
 
-function remark_escape_code() {
-  function escape(node: Code | InlineCode) {
+function remark_code() {
+  async function escape(node: Code | InlineCode) {
     node.value = escape_code(node.value)
+
+    if (node.type === 'code') {
+      const lang = node.lang || 'text'
+      node.value = await codeToHtml(node.value, {
+        lang,
+        theme: 'dark-plus',
+      })
+      // @ts-ignore
+      node.type = 'html'
+    }
   }
 
-  return function (tree: Root) {
-    visit(tree, 'code', escape)
-    visit(tree, 'inlineCode', escape)
+  return async function (tree: Root) {
+    let nodes: Node[] = []
+
+    visit(tree, 'code', (node) => nodes.push(node))
+    visit(tree, 'inlineCode', (node) => nodes.push(node))
+
+    // @ts-ignore
+    await Promise.all(nodes.map((node) => escape(node)))
   }
 }
 
 // allowDangerousHtml = allow script tag
 const md_parser = unified()
   .use(remarkParse)
-  .use(remark_escape_code)
+  .use(remark_code)
   .use(remarkRehype, {
     allowDangerousHtml: true,
     allowDangerousCharacters: true,
@@ -87,8 +104,9 @@ const md_parser = unified()
     allowDangerousCharacters: true,
   })
 
-function md_to_html_str(string: string) {
-  return String(md_parser.processSync(string))
+async function md_to_html_str(string: string) {
+  let res = await md_parser.process(string)
+  return String(res)
 }
 
 async function parse_svm(md_file: string, filename: string) {
@@ -106,7 +124,7 @@ async function parse_svm(md_file: string, filename: string) {
     return id
   })
 
-  content = md_to_html_str(content)
+  content = await md_to_html_str(content)
   content = parseEntities(content)
 
   // restore svelte logic blocks

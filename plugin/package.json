@@ -17,6 +17,7 @@
   "devDependencies": {
     "@sveltejs/kit": "^2.27.1",
     "@types/mdast": "^4.0.4",
+    "shiki": "^3.9.2",
     "svelte": "^5.37.3",
     "unified": "^11.0.5",
     "vite": "^7.0.6"
