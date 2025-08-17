@@ -226,7 +226,7 @@ export function markdown(config: PluginConfig) {
 
   return {
     name: 'markdown',
-    markup({ content, filename }: { content: string; filename: string }) {
+    markup({ content, filename }: { content: string; filename: string }): string {
       if (filename.endsWith('.md')) {
         return parse_svm(content, filename)
       }
