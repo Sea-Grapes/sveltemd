@@ -226,8 +226,10 @@ export function markdown(config: PluginConfig) {
 
   return {
     name: 'markdown',
+    // @ts-ignore
     markup({ content, filename }: { content: string; filename: string }): string {
       if (filename.endsWith('.md')) {
+        // @ts-ignore
         return parse_svm(content, filename)
       }
     },
