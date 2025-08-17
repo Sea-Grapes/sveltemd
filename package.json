@@ -13,7 +13,8 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./fm": "./dist/frontmatter.js"
   },
   "scripts": {
     "build": "tsdown",
