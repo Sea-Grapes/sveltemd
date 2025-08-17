@@ -216,7 +216,7 @@ async function parse_svm(md_file: string, filename: string) {
   }
 }
 
-export function markdown(config: PluginConfig) {
+export function markdown(config: PluginConfig): Function {
   plugin = {
     ...plugin,
     ...config,
@@ -231,7 +231,7 @@ export function markdown(config: PluginConfig) {
     }: {
       content: string
       filename: string
-    }): string {
+    }) {
       if (filename.endsWith('.md')) {
         // @ts-ignore
         return parse_svm(content, filename)
