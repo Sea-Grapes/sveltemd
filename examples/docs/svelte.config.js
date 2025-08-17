@@ -6,6 +6,7 @@ import { markdown } from 'sveltemd'
 const config = {
   // Consult https://svelte.dev/docs/kit/integrations
   // for more information about preprocessors
+  extensions: ['.svelte', '.md'],
   preprocess: [vitePreprocess(), markdown()],
 
   kit: {
