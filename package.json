@@ -14,7 +14,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./package.json": "./package.json",
-    "./data": "./dist/data.svelte.js"
+    "./fm": "./dist/frontmatter.js"
   },
   "scripts": {
     "build": "tsdown",
