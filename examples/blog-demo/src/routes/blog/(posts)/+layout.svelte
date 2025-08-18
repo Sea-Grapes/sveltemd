@@ -5,9 +5,11 @@
   let data = page()
 
   $inspect(data)
+
+  // $inspect(data)
 </script>
 
-<h1>{data.url}</h1>
+<h1>{data.title}</h1>
 
 {@render children?.()}
 

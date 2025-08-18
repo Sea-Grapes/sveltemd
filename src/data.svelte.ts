@@ -8,14 +8,12 @@ console.log(files)
 
 const map = Object.fromEntries(
   Object.entries(files).map(([path, module]: [string, any]) => {
-    const clean_path = path.split('/').slice(3, -1)
+    const clean_path = '/' + path.split('/').slice(3, -1).join('/')
     return [clean_path, module.metadata]
   })
 )
 
 export function pages(): Object[] {
-  console.log(files)
-
   const currentPath = svpage.route.id || ''
 
   const filter = Object.entries(files)
@@ -42,17 +40,15 @@ export function pages(): Object[] {
 // }
 
 export function page(): any {
-  let page_data: any = $state({
-    url: svpage.url.pathname
-  })
+  const id = svpage.route.id || ''
+  const data = map[id] || {}
+
+  let page_data: any = $state(data)
 
   $effect(() => {
-    const key = svpage.url.pathname
-    const frontmatter = map[key] || {
-      foo: 'bar'
-    }
-
-    Object.assign(page_data, { url: key, ...frontmatter })
+    const id = svpage.route.id || ''
+    const data = map[id] || {}
+    if (data) Object.assign(page_data, { ...data })
   })
 
   return page_data
