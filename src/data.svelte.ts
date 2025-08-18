@@ -1,9 +1,9 @@
 // @ts-ignore
-import { page as svpage } from '$app/state'
+import { page } from '$app/state'
 import { onMount } from 'svelte'
 
 // @ts-ignore
-const files = import.meta.glob('/src/routes/**/*.md', { eager: true })
+const files = import.meta.glob('/**/*.md', { eager: true })
 console.log(files)
 
 const map = Object.fromEntries(
@@ -13,8 +13,12 @@ const map = Object.fromEntries(
   })
 )
 
-export function pages(): Object[] {
-  const currentPath = svpage.route.id || ''
+interface PagesOptions {
+  path: string
+}
+
+export function pages({ path = '/src/routes' }: PagesOptions): Object[] {
+  const currentPath = page.route.id || ''
 
   const filter = Object.entries(files)
     .filter(([key, val]) => key.startsWith('/src/routes' + currentPath))
@@ -29,24 +33,24 @@ export function pages(): Object[] {
 // any because user can put anything into frontmatter
 // export function page(): any {
 //   let page_data: any = $state({
-//     url: svpage.url.pathname
+//     url: page.url.pathname
 //   })
 
 //   $effect(() => {
-//     page_data.url = svpage.url.pathname
+//     page_data.url = page.url.pathname
 //   })
 
 //   return page_data
 // }
 
 export function meta(): any {
-  const id = svpage.route.id || ''
+  const id = page.route.id || ''
   const data = map[id] || {}
 
   let page_data: any = $state(data)
 
   $effect(() => {
-    const id = svpage.route.id || ''
+    const id = page.route.id || ''
     const data = map[id] || {}
     if (data) Object.assign(page_data, { ...data })
   })
