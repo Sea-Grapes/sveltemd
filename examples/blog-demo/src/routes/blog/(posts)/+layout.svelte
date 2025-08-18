@@ -4,10 +4,10 @@
 
   let data = page()
 
-  $inspect(data.page)
+  $inspect(data)
 </script>
 
-<h1>{data.page.url}</h1>
+<h1>{data.url}</h1>
 
 {@render children?.()}
 

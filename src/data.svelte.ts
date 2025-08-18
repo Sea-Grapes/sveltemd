@@ -41,43 +41,19 @@ export function pages(): Object[] {
 //   return page_data
 // }
 
-// export function page(): any {
-//   let page_data: any = $state({})
-
-//   $effect(() => {
-//     const key = svpage.url.pathname
-//     const frontmatter = map[key] || {}
-
-//     page_data = {
-//       ...frontmatter,
-//       url: key
-//     }
-//   })
-
-//   return page_data
-// }
-
-class Data {
-  page: any
-
-  constructor() {
-    this.page = $state.raw({})
-    this.page.url = svpage.url.pathname
-  }
-}
-
 export function page(): any {
-  let data = new Data()
-
-  $effect(() => {
-    const url = svpage.url.pathname
-    const fm = map[url] || {}
-
-    data.page = {
-      url,
-      ...fm
-    }
+  let page_data: any = $state({
+    url: svpage.url.pathname
   })
 
-  return data
+  $effect(() => {
+    const key = svpage.url.pathname
+    const frontmatter = map[key] || {
+      foo: 'bar'
+    }
+
+    Object.assign(page_data, { url: key, ...frontmatter })
+  })
+
+  return page_data
 }
