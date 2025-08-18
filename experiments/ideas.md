@@ -6,3 +6,69 @@ The new approach would be to use native sveltekit routing features (groups and l
 
 v2: tried the above, but realized filesystem layouts actually are better.
 - since they only apply to markdown, they can be put at the root of folders. Say you're creating a documentation site with multiple subroutes, such as /intro, /install, /tutorial, each with markdown pages inside. If you want these to all have the same style, you can put a layout at the root and all will recieve it. With normal layouts you cannot do this, since layouts apply to everything (well you could use an if block to detect if there's frontmatter, but this is poor dx)
+
+v3: returning to native layouts idea
+
+Perhaps we can make layouts conditional by providing a component, such as `<MDLayout>`, which toggles between markdown layout/normal layout (or simply only renders for markdown if the user doesn't need normal layout at that level). This potentially loses some of the clarity of custom layouts, but may be better perf & hackiness-wise
+
+This example has some interesting ideas [docs](https://svelte.dev/docs/svelte/v5-migration-guide#Snippets-instead-of-slots-Passing-data-back-up)
+```svelte
+<List items={['one', 'two', 'three']} let:item>
+	{#snippet item(text)}
+		<span>{text}</span>
+	{/snippet}
+	<span slot="empty">No items yet</span>
+	{#snippet empty()}
+		<span>No items yet</span>
+	{/snippet}
+</List>
+```
+
+Is `let:item` depricated? I cannot find details in the docs yet. Potentially:
+```svelte
+// +layout.svelte
+
+<MDLayout let:meta>
+</MDLayout>
+```
+^ Nevermind, it is depricated. use snippets instead.
+
+Attachments also seem to do what we want ([docs](https://svelte.dev/docs/svelte/@attach)):
+
+> Attachments are functions that run in an effect when an element is mounted to the DOM or when state read inside the function updates.
+> Optionally, they can return a function that is called before the attachment re-runs, or after the element is later removed from the DOM.
+
+Rather than using a `page()` function for metadata, perhaps we can get it only in the layout component, since that is where it's needed anyway.
+
+option 1:
+```svelte
+<script>
+  import { page, MDLayout, Layout } from 'sveltemd'
+</script>
+
+<!-- only renders when current page is md -->
+<MDLayout>
+
+</MDLayout>
+
+<!-- only renders when current page is not md -->
+<Layout>
+
+</Layout>
+```
+
+option 2: the more "correct" version probably, but I doubt people will like this
+```svelte
+<Layout>
+  {#snippet md(data)}
+    <h1>Blog post: {data.title}</h1>
+    <h2>Published: {data.date}</h2>
+    {@render children?.()}
+  {/snippet}
+
+  <!-- perhaps there's a different way to default, but I didn't find any info -->
+  {#snippet default()}
+    <!-- renders when not md page -->
+  {/snippet}
+</Layout>
+```
