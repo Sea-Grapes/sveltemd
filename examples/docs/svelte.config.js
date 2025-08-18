@@ -7,7 +7,17 @@ const config = {
   // Consult https://svelte.dev/docs/kit/integrations
   // for more information about preprocessors
   extensions: ['.svelte', '.md'],
-  preprocess: [vitePreprocess(), markdown()],
+  preprocess: [
+    vitePreprocess(),
+    markdown({
+      default_code: {
+        shiki_options: {
+          theme: 'vitesse-light',
+        },
+      },
+      
+    }),
+  ],
 
   kit: {
     // adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.

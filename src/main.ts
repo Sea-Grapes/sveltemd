@@ -14,6 +14,12 @@ import { visit } from 'unist-util-visit'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
+type ShikiOptions = Omit<Parameters<typeof codeToHtml>[1], 'lang'>
+
+type Test = Parameters<typeof codeToHtml>[1]
+
+let a: ShikiOptions = {}
+
 interface PluginConfig {
   extension?: Extension
   extensions?: Extension[]
@@ -21,6 +27,10 @@ interface PluginConfig {
   internal?: {
     indent: string
   }
+  default_code?: {
+    shiki_options: ShikiOptions
+  }
+  custom_code?: {}
 }
 
 let plugin: PluginConfig = {
@@ -36,7 +46,7 @@ let plugin: PluginConfig = {
 function get_layout_paths(filename: string): string[] {
   const layout_paths = globSync('./src/routes/**/md.svelte')
 
-  console.log(layout_paths)
+  // console.log(layout_paths)
 
   const file_path = slash(path.relative(process.cwd(), filename))
     .split('/')
@@ -67,14 +77,14 @@ function escape_code(string: string) {
 
 function remark_code() {
   async function escape(node: Code | InlineCode) {
-    node.value = escape_code(node.value)
-
     if (node.type === 'code') {
       const lang = node.lang || 'text'
       node.value = await codeToHtml(node.value, {
-        lang,
         theme: 'dark-plus',
+        ...(plugin.default_code?.shiki_options || {}),
+        lang,
       })
+      node.value = escape_code(node.value)
       // @ts-ignore
       node.type = 'html'
     }
@@ -131,7 +141,7 @@ async function parse_svm(md_file: string, filename: string) {
   svelte_logic.forEach((text, i) => {
     content = content.replace(`<div data-svelte-block="${i}"></div>`, text)
   })
-  console.log(content)
+  // console.log(content)
 
   let res = ''
 
@@ -222,16 +232,12 @@ export function markdown(config: PluginConfig): Function {
     ...config,
   }
 
+  // console.log(plugin)
+
   return {
     name: 'markdown',
     // @ts-ignore
-    markup({
-      content,
-      filename,
-    }: {
-      content: string
-      filename: string
-    }) {
+    markup({ content, filename }: { content: string; filename: string }) {
       if (filename.endsWith('.md')) {
         // @ts-ignore
         return parse_svm(content, filename)

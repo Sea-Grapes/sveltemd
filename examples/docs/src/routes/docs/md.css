@@ -1,0 +1,7 @@
+@reference 'tailwindcss';
+
+article {
+  .shiki {
+    @apply bg-zinc-100!;
+  }
+}
