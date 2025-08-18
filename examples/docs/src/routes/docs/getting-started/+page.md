@@ -2,6 +2,10 @@
 title: Getting Started
 ---
 
+<script>
+  let count = $state(0);
+</script>
+
 ## Installing
 
 _Note: package not published yet._
@@ -21,3 +25,6 @@ const config = {
   preprocess: [vitePreprocess(), markdown()],
 }
 ```
+
+
+<button onclick={() => {count++}}>This is a test</button>
