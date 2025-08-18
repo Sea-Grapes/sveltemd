@@ -9,7 +9,7 @@
   <link rel="icon" href={favicon} />
 </svelte:head>
 
-<nav class="p-4 flex justify-between">
+<nav class="py-4 px-1-5 flex justify-between">
   <a href="/">Sveltemd</a>
 </nav>
 {@render children?.()}

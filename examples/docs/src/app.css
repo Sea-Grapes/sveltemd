@@ -5,3 +5,9 @@
   --spacing-1-5: clamp(1rem, 5vw, 5rem);
   --spacing-16-32: clamp(4rem, 2.3636rem + 7.2727vw, 8rem);
 }
+
+@layer base {
+  body {
+    @apply text-zinc-800;
+  }
+}
