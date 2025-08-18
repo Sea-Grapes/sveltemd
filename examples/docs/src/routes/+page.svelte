@@ -45,14 +45,14 @@
     <div class="grid place-content-center relative">
       <div class="absolute inset-0 flex items-center justify-center">
         <div
-          class="h-80 w-80 rounded-full bg-[linear-gradient(-45deg,var(--color-purple-500)_50%,var(--color-cyan-500)_50%)] blur-3xl"
+          class="h-50 lg:h-80 aspect-square rounded-full bg-[linear-gradient(-45deg,var(--color-purple-500)_50%,var(--color-cyan-500)_50%)] blur-3xl"
         ></div>
       </div>
 
-      <img class="relative block h-80" src="vite_logo.svg" alt="" />
+      <img class="relative block h-50 lg:h-80" src="vite_logo.svg" alt="" />
     </div>
   </div>
-  <div class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+  <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
     <card>
       <div>
         <IMemo />
