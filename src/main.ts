@@ -64,8 +64,8 @@ function get_layout_paths(filename: string): string[] {
 const svelte_err = Object.entries({
   '{': '&lbrace;',
   '}': '&rbrace;',
-  '<': '&lt;',
-  '>': '&gt;',
+  // '<': '&lt;',
+  // '>': '&gt;',
 })
 
 function escape_code(string: string) {
@@ -135,7 +135,7 @@ async function parse_svm(md_file: string, filename: string) {
   })
 
   content = await md_to_html_str(content)
-  content = parseEntities(content)
+  // content = parseEntities(content)
 
   // restore svelte logic blocks
   svelte_logic.forEach((text, i) => {

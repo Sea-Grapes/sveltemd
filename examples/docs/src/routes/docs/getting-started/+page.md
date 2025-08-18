@@ -25,6 +25,3 @@ const config = {
   preprocess: [vitePreprocess(), markdown()],
 }
 ```
-
-
-<button onclick={() => {count++}}>This is a test</button>
