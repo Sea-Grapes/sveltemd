@@ -1,7 +1,7 @@
 <script>
-  import { frontmatter } from 'sveltemd/data'
+  import { metadata } from 'sveltemd/data'
 
-  let posts = frontmatter()
+  let posts = metadata()
 </script>
 
 <h1 class="text-3xl font-bold tracking-tight">Blog Posts</h1>
