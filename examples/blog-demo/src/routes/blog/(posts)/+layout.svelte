@@ -1,9 +1,12 @@
 <script>
-  import { data } from 'sveltemd/data'
+	import { page } from 'sveltemd/data';
+	let { children } = $props();
 
-  let { children } = $props()
+	let data = page();
 </script>
 
-<h1>{data.page.url}</h1>
+<h1>{data.url}</h1>
 
 {@render children?.()}
+
+<a href="/blog">Back to all posts</a>

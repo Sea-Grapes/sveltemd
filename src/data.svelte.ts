@@ -4,6 +4,7 @@ import { onMount } from 'svelte'
 
 // @ts-ignore
 const files = import.meta.glob('/src/routes/**/*.md', { eager: true })
+console.log(files)
 
 export function pages(): Object[] {
   console.log(files)
@@ -24,24 +25,11 @@ interface PageData {
   url: string
 }
 
-// export const page: Object = $state({})
-// export const page: PageData = $derived.by(() => {
-//   return {
-//     url: String(svpage.url),
-//   }
-// })
-
-
-class Data {
-  page: PageData
-
-  constructor() {
-    this.page = $derived.by(() => {
-      return {
-        url: String(svpage.url.pathname)
-      }
-    })
-  }
+export function page(): PageData {
+  let page_data: PageData = $derived.by(() => {
+    return {
+      url: String(svpage.url.pathname),
+    }
+  })
+  return page_data
 }
-
-export const data: Data = new Data()
