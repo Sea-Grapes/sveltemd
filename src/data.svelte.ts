@@ -21,15 +21,15 @@ export function pages(): Object[] {
   return filter
 }
 
-interface PageData {
-  url: string
-}
-
-export function page(): PageData {
-  let page_data: PageData = $derived.by(() => {
-    return {
-      url: String(svpage.url.pathname),
-    }
+// any because user can put anything into frontmatter
+export function page(): any {
+  let page_data: any = $state({
+    url: svpage.url.pathname
   })
+
+  $effect(() => {
+    page_data.url = svpage.url.pathname
+  })
+
   return page_data
 }

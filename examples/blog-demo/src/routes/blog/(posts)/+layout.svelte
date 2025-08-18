@@ -1,8 +1,8 @@
 <script>
-	import { page } from 'sveltemd/data';
-	let { children } = $props();
+  import { page } from 'sveltemd/data'
+  let { children } = $props()
 
-	let data = page();
+  let data = page()
 </script>
 
 <h1>{data.url}</h1>
