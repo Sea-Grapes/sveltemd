@@ -14,7 +14,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./package.json": "./package.json",
-    "./fm": "./dist/frontmatter.js"
+    "./data": "./dist/data.js"
   },
   "scripts": {
     "build": "tsdown",
