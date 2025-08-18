@@ -21,18 +21,3 @@ const config = {
   preprocess: [vitePreprocess(), markdown()],
 }
 ```
-
-## Planned Features
-
-General
-
-- [x] preprocess markdown files as svelte + markdown
-- [x] flexible layout system (Complete!)
-- [x] get frontmatter from children files
-- [ ] easy content processing (image, video, audio, etc)
-  - Ex. support for enhanced-img or other processors
-  - relative content urls?
-
-Code blocks
-
-- [ ] custom syntax highlighter
