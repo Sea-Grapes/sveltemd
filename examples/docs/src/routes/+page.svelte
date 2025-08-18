@@ -6,16 +6,16 @@
 </script>
 
 <section class="max-w-7xl mx-auto py-16-24 px-1-5 space-y-16">
-  <div class="flex *:grow items-center">
-    <div class="space-y-8">
+  <div class="flex *:grow items-center flex-col-reverse lg:flex-row gap-16">
+    <div class="space-y-8 text-center lg:text-left">
       <div class="space-y-4">
         <h1
-          class="text-5xl font-bold tracking-tight max-w-[18ch] bg-linear-45 from-purple-500 to-blue-500 text-transparent bg-clip-text inline-block"
+          class="text-5xl font-bold tracking-tight bg-linear-45 from-purple-500 to-blue-500 text-transparent bg-clip-text inline-block"
         >
           Sveltemd Docs
         </h1>
         <h1
-          class="text-5xl font-bold tracking-tight text-zinc-700 block max-w-[18ch]"
+          class="text-5xl font-bold tracking-tight text-zinc-700 block max-w-[20ch] lg:max-w-[18ch]"
         >
           Powered by SvelteKit and Sveltemd
         </h1>
@@ -24,7 +24,7 @@
         </h2>
       </div>
       <div
-        class="cta flex gap-2 *:px-4 *:py-2 *:rounded-full font-medium text-zinc-700"
+        class="cta inline-flex gap-2 *:px-4 *:py-2 *:rounded-full font-medium text-zinc-700"
       >
         <a
           href="/"

@@ -10,6 +10,6 @@
 </svelte:head>
 
 <nav class="py-4 px-1-5 flex justify-between">
-  <a href="/">Sveltemd</a>
+  <a href="/" class="font-medium">Sveltemd</a>
 </nav>
 {@render children?.()}
