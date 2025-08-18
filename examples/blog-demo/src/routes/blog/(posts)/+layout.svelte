@@ -1,11 +1,13 @@
 <script>
-  import { page } from 'sveltemd/data'
+  import { meta } from 'sveltemd/data'
+  import { page } from '$app/state'
   let { children } = $props()
 
-  let data = page()
+  let data = meta()
 
   $inspect(data)
 
+  $inspect(page.route.id)
   // $inspect(data)
 </script>
 

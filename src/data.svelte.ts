@@ -39,7 +39,7 @@ export function pages(): Object[] {
 //   return page_data
 // }
 
-export function page(): any {
+export function meta(): any {
   const id = svpage.route.id || ''
   const data = map[id] || {}
 
