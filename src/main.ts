@@ -84,10 +84,10 @@ function remark_code() {
         ...(plugin.default_code?.shiki_options || {}),
         lang,
       })
-      node.value = escape_code(node.value)
       // @ts-ignore
       node.type = 'html'
     }
+    node.value = escape_code(node.value)
   }
 
   return async function (tree: Root) {

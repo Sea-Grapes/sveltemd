@@ -1,6 +1,7 @@
 <script lang="ts">
   import '../app.css'
   import favicon from '$lib/assets/favicon.svg'
+  import ISvelte from '$lib/icons/ISvelte.svelte'
 
   let { children } = $props()
 </script>
@@ -13,7 +14,10 @@
   <nav
     class="py-4 px-4 sm:px-6 xl:px-8 2xl:px-40 flex justify-between font-medium items-center"
   >
-    <a href="/" class="text-lg">Sveltemd</a>
+    <a href="/" class="text-lg flex gap-2 items-center">
+      <ISvelte />
+      Sveltemd</a
+    >
     <div class="flex gap-8 text-[15px] text-zinc-600">
       <a href="/docs">Docs</a>
       <a href="/docs">Reference</a>
