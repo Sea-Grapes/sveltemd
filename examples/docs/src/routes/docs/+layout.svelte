@@ -6,7 +6,7 @@
 
   let data = metadata()
 
-  console.log(data)
+  // console.log(data)
 </script>
 
 <aside

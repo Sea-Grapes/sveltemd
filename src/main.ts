@@ -1,6 +1,7 @@
+import diff from 'fast-diff'
 import matter from 'gray-matter'
+import { decode, encode } from 'html-entities'
 import { Code, InlineCode, Node, Root } from 'mdast'
-import { parseEntities } from 'parse-entities'
 import path from 'path'
 import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
@@ -16,21 +17,17 @@ type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
 type ShikiOptions = Omit<Parameters<typeof codeToHtml>[1], 'lang'>
 
-type Test = Parameters<typeof codeToHtml>[1]
-
-let a: ShikiOptions = {}
-
 interface PluginConfig {
   extension?: Extension
   extensions?: Extension[]
   layout_file_name?: string
   internal?: {
-    indent: string
+    indent?: string
+    preserve_user_entities?: boolean
   }
-  default_code?: {
+  code?: {
     shiki_options: ShikiOptions
   }
-  custom_code?: {}
 }
 
 let plugin: PluginConfig = {
@@ -38,6 +35,7 @@ let plugin: PluginConfig = {
   layout_file_name: 'md.svelte',
   internal: {
     indent: ' ',
+    preserve_user_entities: true,
   },
 }
 
@@ -81,7 +79,7 @@ function remark_code() {
       const lang = node.lang || 'text'
       node.value = await codeToHtml(node.value, {
         theme: 'dark-plus',
-        ...(plugin.default_code?.shiki_options || {}),
+        ...(plugin.code?.shiki_options || {}),
         lang,
       })
       // @ts-ignore
@@ -129,19 +127,39 @@ async function parse_svm(md_file: string, filename: string) {
 
   // escape svelte logic blocks
   content = content.replace(/\{[#/:@][^}]*\}/g, (match) => {
-    const id = `<div data-svelte-block="${svelte_logic.length}"></div>`
+    const id = `<div data-sveltemd="${svelte_logic.length}"></div>`
     svelte_logic.push(match)
     return id
   })
 
+  // let user_ent: string[] = []
+  // if (plugin.internal?.preserve_user_entities) {
+  //   let entity_diff = diff(content, encode(content))
+  //   let tmp = ''
+  //   for (const [op, text] of entity_diff) {
+  //     if (op === diff.DELETE) {
+  //       // an entity got decoded, save it
+  //       const id = `SVELTEMD_${user_ent.length}`
+  //       user_ent.push(text)
+  //       tmp += id
+  //     } else if (op === diff.INSERT) continue
+  //     else tmp += text
+  //   }
+  //   content = tmp
+  // }
+
   content = await md_to_html_str(content)
-  // content = parseEntities(content)
+
+  // content = decode(content)
+
+  // user_ent.forEach((text, i) => {
+  //   content = content.replace(`SVELTEMD_${i}`, text)
+  // })
 
   // restore svelte logic blocks
   svelte_logic.forEach((text, i) => {
-    content = content.replace(`<div data-svelte-block="${i}"></div>`, text)
+    content = content.replace(`<div data-sveltemd="${i}"></div>`, text)
   })
-  // console.log(content)
 
   let res = ''
 
@@ -227,6 +245,7 @@ async function parse_svm(md_file: string, filename: string) {
 }
 
 export function markdown(config: PluginConfig): Function {
+  // Todo: fix resolution (this is only shallow)
   plugin = {
     ...plugin,
     ...config,

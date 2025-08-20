@@ -77,6 +77,8 @@ option 2: the more "correct" version probably, but I doubt people will like this
 
 Goals
 - html entities should only be allowed in pre/code blocks, and also any the user explicitly writes.
+- user written is handled using placeholder (SVELTEMD_i)
+- need to call decode() but avoid pre. Probably call decode(), then parse hast, visit 
 
 Steps:
 1. replace all html entities with placeholder (this will secure ones written manually by user, in both body and script tags)
@@ -91,3 +93,10 @@ How to replace all entities with placeholders?
 - call parse entities from lib (I will use html-entities since it claims to be fast and has easy api)
 - use lib for string diff
 - replace diffs with placeholder (store placeholder and value map)
+
+Alternative solution
+- replace user-created entities with placeholders.
+- parse markdown using any parser - this may create entities
+- call global parseEntities - no more entities 
+- parse to hast/html processor - re-escape (restore entities) in pre/code blocks
+- restore user-created entities.

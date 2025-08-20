@@ -10,7 +10,7 @@ const config = {
   preprocess: [
     vitePreprocess(),
     markdown({
-      default_code: {
+      code: {
         shiki_options: {
           theme: 'vitesse-light',
         },
