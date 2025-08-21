@@ -151,12 +151,21 @@ async function parse_svm(md_file: string, filename: string) {
   let res = ''
 
   const svast = parse(content, { modern: true })
-  // console.log(svast)
+  console.log('Whole ast')
+  console.log(JSON.stringify(svast.fragment, null, 2))
 
+  // perhaps this should be extracted to a js file
+  // since estree-walker types are all wrong
+
+  console.log('Walk')
   // @ts-ignore
   walk(svast, {
-    enter(node) {
-      console.log(node)
+    enter(node, parent, key, index) {
+      // @ts-ignore
+      if (node.type === 'Text' && parent.type === 'Fragment') {
+        console.log(parent)
+        node.
+      }
       // if(node.type === '')
     },
   })
