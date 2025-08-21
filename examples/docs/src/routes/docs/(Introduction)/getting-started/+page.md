@@ -26,6 +26,4 @@ const config = {
 }
 ```
 
-What if I wanted to write some &lt;html>
-
-<div class="bg-slate-200" onclick={() => { console.log('test') }}>Test</div>
+What if I wanted to write some

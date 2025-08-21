@@ -10,8 +10,11 @@ import { codeToHtml } from 'shiki'
 import slash from 'slash'
 import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
-import { unified } from 'unified'
+import { Processor, unified } from 'unified'
 import { visit } from 'unist-util-visit'
+
+// @ts-ignore
+import hast_to_html from '@starptech/prettyhtml-hast-to-html'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -99,6 +102,14 @@ function remark_code() {
   }
 }
 
+function stringify(this: Processor, options = {}) {
+  this.compiler = compiler
+
+  function compiler(tree: Node): string {
+    return hast_to_html(tree, options)
+  }
+}
+
 // allowDangerousHtml = allow script tag
 const md_parser = unified()
   .use(remarkParse)
@@ -107,7 +118,7 @@ const md_parser = unified()
     allowDangerousHtml: true,
     allowDangerousCharacters: true,
   })
-  .use(rehypeStringify, {
+  .use(stringify, {
     allowDangerousHtml: true,
     allowDangerousCharacters: true,
   })
@@ -132,29 +143,7 @@ async function parse_svm(md_file: string, filename: string) {
     return id
   })
 
-  // let user_ent: string[] = []
-  // if (plugin.internal?.preserve_user_entities) {
-  //   let entity_diff = diff(content, encode(content))
-  //   let tmp = ''
-  //   for (const [op, text] of entity_diff) {
-  //     if (op === diff.DELETE) {
-  //       // an entity got decoded, save it
-  //       const id = `SVELTEMD_${user_ent.length}`
-  //       user_ent.push(text)
-  //       tmp += id
-  //     } else if (op === diff.INSERT) continue
-  //     else tmp += text
-  //   }
-  //   content = tmp
-  // }
-
   content = await md_to_html_str(content)
-
-  // content = decode(content)
-
-  // user_ent.forEach((text, i) => {
-  //   content = content.replace(`SVELTEMD_${i}`, text)
-  // })
 
   // restore svelte logic blocks
   svelte_logic.forEach((text, i) => {

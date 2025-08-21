@@ -100,3 +100,7 @@ Alternative solution
 - call global parseEntities - no more entities 
 - parse to hast/html processor - re-escape (restore entities) in pre/code blocks
 - restore user-created entities.
+
+Other ideas
+- fork hast-util-to-html and remove text stringify. This may be ok to do as it doesn't seem to do much/isn't very helpful.
+- write a rehype plugin to visit all text and swap entities for placeholders. This may suck for perf since it needs string diff and generates a lot of placeholders (every entity in code blocks). Potentially a way to improve this by storing placeholders differently (grouping ones that are the same and storing their indexes?)
