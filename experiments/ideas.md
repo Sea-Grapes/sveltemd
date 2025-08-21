@@ -171,3 +171,10 @@ However this is too brittle to just match all these.
 - any `<` or `{` that doesn't look like `<element>`, `{#logic`
 - possibly all `<` and `{` in code/inline code blocks
 - It really depends on how svelte parses. (Does it break if `>` and `}` are unescaped?)
+
+Thoughts
+
+- for <, we only need to avoid escaping the front part of `<element`. This one should be pretty simple, since html element can't have < anywhere in it that will break it (It can be in strings and get escaped, that is ok). So this one we can probably just replace any < that is not in the format "<text>" or "</text>" (maybe "<text />" too if necessary). This does mean that if the user just types <text> expecting it to be escaped it won't work, but this is an error raised by svelte anyway so it should be ok. (For more correctness, I could maybe just parse this to a hast, escape any < in text, and restore to string).
+- Logic blocks are trickier because their special character is `{`, but they can have `{` inside them (such as in javascript). so we can't just match { to } because it may not be the correct ending. Not sure about this one.
+- Code blocks and inline code definitely need all of these to be escaped. < chars in code could be escaped by the hast. `{` ones can't be escaped automatically in the same way, so perhaps we could search for backticks. Not sure about this one.
+- Definitely will remove the script/css tags before escaping. Also unsure how to detect these properly.

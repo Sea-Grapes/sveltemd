@@ -1,9 +1,8 @@
-import diff from 'fast-diff'
 import matter from 'gray-matter'
-import { decode, encode } from 'html-entities'
+import { fromHtml } from 'hast-util-from-html'
+import { toHtml } from 'hast-util-to-html'
 import { Code, InlineCode, Node, Root } from 'mdast'
 import path from 'path'
-import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { codeToHtml } from 'shiki'
@@ -12,9 +11,9 @@ import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
 import { Processor, unified } from 'unified'
 import { visit } from 'unist-util-visit'
-
-// @ts-ignore
-import hast_to_html from '@starptech/prettyhtml-hast-to-html'
+import { stringifyEntities } from 'stringify-entities'
+import { walk } from 'estree-walker'
+import rehypeStringify from 'rehype-stringify'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -102,30 +101,42 @@ function remark_code() {
   }
 }
 
-function stringify(this: Processor, options = {}) {
-  this.compiler = compiler
-
-  function compiler(tree: Node): string {
-    return hast_to_html(tree, options)
-  }
-}
-
-// allowDangerousHtml = allow script tag
+// // allowDangerousHtml = allow script tag
 const md_parser = unified()
   .use(remarkParse)
   .use(remark_code)
-  .use(remarkRehype, {
-    allowDangerousHtml: true,
-    allowDangerousCharacters: true,
-  })
-  .use(stringify, {
-    allowDangerousHtml: true,
-    allowDangerousCharacters: true,
+  .use(remarkRehype)
+  .use(rehypeStringify)
+
+// async function md_to_html_str(string: string) {
+//   let res = await md_parser.process(string)
+//   return String(res)
+// }
+
+// escapes raw svelte + markdown input.
+// only escapes characters that will break svelte parse.
+function escape_svm(string: string) {
+  let ast = fromHtml(string, { fragment: true })
+
+  // escape any < not in html
+  visit(ast, 'text', (node) => {
+    // surely no one will ever use this delimiter
+    node.value = node.value.replaceAll('<', '+SVMD_0+') //stringifyEntities(node.value, { subset: ['<'] })
+
+    // bracket logic may be simplified if I can find a good way to avoid escaping svelte logic.
+
+    // escape brackets in multiline code
+    node.value = node.value.replace(/```[\s\S]*?```/g, (match) => {
+      return match.replaceAll('{', '+SVMD_1+')
+    })
+
+    // escape brackets in inline code
+    node.value = node.value.replace(/`[^`]*`/g, (match) => {
+      return match.replaceAll('{', '+SVMD_1')
+    })
   })
 
-async function md_to_html_str(string: string) {
-  let res = await md_parser.process(string)
-  return String(res)
+  return toHtml(ast)
 }
 
 async function parse_svm(md_file: string, filename: string) {
@@ -134,26 +145,21 @@ async function parse_svm(md_file: string, filename: string) {
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
 
-  let svelte_logic: string[] = []
-
-  // escape svelte logic blocks
-  content = content.replace(/\{[#/:@][^}]*\}/g, (match) => {
-    const id = `<div data-sveltemd="${svelte_logic.length}"></div>`
-    svelte_logic.push(match)
-    return id
-  })
-
-  content = await md_to_html_str(content)
-
-  // restore svelte logic blocks
-  svelte_logic.forEach((text, i) => {
-    content = content.replace(`<div data-sveltemd="${i}"></div>`, text)
-  })
+  content = escape_svm(content)
+  console.log(content)
 
   let res = ''
 
   const svast = parse(content, { modern: true })
   // console.log(svast)
+
+  // @ts-ignore
+  walk(svast, {
+    enter(node) {
+      console.log(node)
+      // if(node.type === '')
+    },
+  })
 
   const extract = (section: any): string => {
     if (!section || section.start == section.end) return ''
