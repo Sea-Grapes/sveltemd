@@ -5,7 +5,7 @@ import { resolve } from '$app/paths'
 const files = import.meta.glob('/src/routes/**/*.md', { eager: true })
 
 const trim_path = (string: string) => {
-  return string.split('/').slice(3, -1).join('/')
+  return '/' + string.split('/').slice(3, -1).join('/')
 }
 
 interface FrontmatterOptions {

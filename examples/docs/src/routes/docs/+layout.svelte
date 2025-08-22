@@ -1,16 +1,27 @@
 <script>
+  import ISvelte from '$lib/icons/ISvelte.svelte'
   import './md.css'
   import { metadata } from 'sveltemd/data'
 
   let { children } = $props()
 
   let data = metadata()
+  console.log(data)
 </script>
 
+<!-- very hacky css warning (This is just for quick dx) -->
 <aside
-  class="fixed left-0 bottom-0 h-full bg-zinc-100 lg:translate-0 -translate-x-100 transition"
+  class="fixed left-0 bottom-0 h-full bg-zinc-100 lg:translate-0 -translate-x-[16rem] transition"
 >
-  {#each data as page}{/each}
+  <div class="max-w-[30ch] ml-auto py-4 px-5">
+    <a href="/" class="text-lg flex gap-2 items-center font-medium">
+      <ISvelte />
+      Sveltemd</a
+    >
+    {#each data as page}
+      <a href={page.url}>{page.title}</a>
+    {/each}
+  </div>
 </aside>
 
 <div

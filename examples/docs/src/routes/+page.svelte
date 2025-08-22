@@ -5,7 +5,7 @@
   import IVite from '$lib/icons/IVite.svelte'
 </script>
 
-<section class="max-w-7xl mx-auto py-16-24 px-1-5 space-y-16">
+<section class="max-w-7xl mx-auto py-16-24 px-1-5 space-y-16 min-h-screen">
   <div class="flex *:grow items-center flex-col-reverse lg:flex-row gap-16">
     <div class="space-y-8 text-center lg:text-left">
       <div class="space-y-4">
@@ -94,6 +94,19 @@
     </card>
   </div>
 </section>
+
+<footer
+  class="border-t border-t-zinc-300 px-4 pt-8 pb-9 text-center font-medium text-zinc-500 text-sm leading-relaxed"
+>
+  <p>
+    Design copied from <a
+      href="https://vitepress.dev/"
+      target="_blank"
+      class="text-zinc-600 underline">VitePress</a
+    >
+  </p>
+  <p>Released under the MIT License.</p>
+</footer>
 
 <style>
   @reference 'tailwindcss';
