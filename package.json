@@ -30,6 +30,7 @@
     "hast-util-from-html": "^2.0.3",
     "hast-util-to-html": "^9.0.5",
     "html-entities": "^2.6.0",
+    "magic-string": "^0.30.17",
     "marked": "^16.2.0",
     "parse-entities": "^4.0.2",
     "rehype-raw": "^7.0.0",

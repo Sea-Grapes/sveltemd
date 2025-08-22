@@ -14,6 +14,7 @@ import { visit } from 'unist-util-visit'
 import { stringifyEntities } from 'stringify-entities'
 import { walk } from 'estree-walker'
 import rehypeStringify from 'rehype-stringify'
+import MagicString from 'magic-string'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -104,14 +105,14 @@ function remark_code() {
 // // allowDangerousHtml = allow script tag
 const md_parser = unified()
   .use(remarkParse)
-  .use(remark_code)
+  // .use(remark_code)
   .use(remarkRehype)
   .use(rehypeStringify)
 
-// async function md_to_html_str(string: string) {
-//   let res = await md_parser.process(string)
-//   return String(res)
-// }
+function md_to_html_str(string: string) {
+  let res = md_parser.processSync(string)
+  return String(res)
+}
 
 // escapes raw svelte + markdown input.
 // only escapes characters that will break svelte parse.
@@ -146,29 +147,41 @@ async function parse_svm(md_file: string, filename: string) {
   // content = content.trim()
 
   content = escape_svm(content)
-  console.log(content)
+  // console.log(content)
 
   let res = ''
 
   const svast = parse(content, { modern: true })
-  console.log('Whole ast')
-  console.log(JSON.stringify(svast.fragment, null, 2))
+  // console.log('Whole ast')
+  // console.log(JSON.stringify(svast.fragment, null, 2))
 
   // perhaps this should be extracted to a js file
   // since estree-walker types are all wrong
 
   console.log('Walk')
+
+  const s = new MagicString(content)
+
   // @ts-ignore
   walk(svast, {
     enter(node, parent, key, index) {
       // @ts-ignore
       if (node.type === 'Text' && parent.type === 'Fragment') {
-        console.log(parent)
-        node.
+        // console.log(parent)
+        console.log('node raw:')
+        console.log(node.raw)
+        // @ts-ignore
+        let res = md_to_html_str(node.raw)
+        // @ts-ignore
+        s.update(node.start, node.end, res)
+        console.log('s tostring')
+        console.log(s.toString())
       }
       // if(node.type === '')
     },
   })
+
+  content = s.toString()
 
   const extract = (section: any): string => {
     if (!section || section.start == section.end) return ''

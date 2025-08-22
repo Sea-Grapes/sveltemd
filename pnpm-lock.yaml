@@ -35,6 +35,9 @@ importers:
       html-entities:
         specifier: ^2.6.0
         version: 2.6.0
+      magic-string:
+        specifier: ^0.30.17
+        version: 0.30.17
       marked:
         specifier: ^16.2.0
         version: 16.2.0
