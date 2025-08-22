@@ -8,11 +8,12 @@
 
 <svelte:head>
   <link rel="icon" href={favicon} />
+  <title>Sveltemd</title>
 </svelte:head>
 
 <main class="min-h-screen">
   <nav
-    class="py-4 px-4 sm:px-6 xl:px-8 2xl:px-40 flex justify-between font-medium items-center"
+    class="py-4 px-4 sm:px-6 xl:px-8 flex justify-between font-medium items-center max-w-8xl mx-auto"
   >
     <a href="/" class="text-lg flex gap-2 items-center">
       <ISvelte />
