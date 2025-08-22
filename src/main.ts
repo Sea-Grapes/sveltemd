@@ -117,10 +117,17 @@ function md_to_html_str(string: string) {
 // escapes raw svelte + markdown input.
 // only escapes characters that will break svelte parse.
 function escape_svm(string: string) {
+  let s = new MagicString(string)
+
   let ast = fromHtml(string, { fragment: true })
+
+  console.log('hast')
+  console.log(ast)
 
   // escape any < not in html
   visit(ast, 'text', (node) => {
+    if (!node.position?.start.offset || !node.position?.end.offset) return
+
     // surely no one will ever use this delimiter
     node.value = node.value.replaceAll('<', '+SVMD_0+') //stringifyEntities(node.value, { subset: ['<'] })
 
@@ -135,9 +142,16 @@ function escape_svm(string: string) {
     node.value = node.value.replace(/`[^`]*`/g, (match) => {
       return match.replaceAll('{', '+SVMD_1')
     })
+
+    s.update(node.position.start.offset, node.position.end.offset, node.value)
   })
 
-  return toHtml(ast)
+  return s.toString()
+
+  // return toHtml(ast, {
+  //   allowDangerousCharacters: true,
+  //   allowDangerousHtml: true,
+  // })
 }
 
 async function parse_svm(md_file: string, filename: string) {
@@ -157,7 +171,7 @@ async function parse_svm(md_file: string, filename: string) {
 
   // perhaps this should be extracted to a js file
   // since estree-walker types are all wrong
-
+  console.log
   console.log('Walk')
 
   const s = new MagicString(content)
@@ -167,25 +181,29 @@ async function parse_svm(md_file: string, filename: string) {
     enter(node, parent, key, index) {
       // @ts-ignore
       if (node.type === 'Text' && parent.type === 'Fragment') {
+        // console.log('node')
         // console.log(parent)
-        console.log('node raw:')
-        console.log(node.raw)
+
+        // @ts-ignore
+        let text = node.raw
+        // console.log('node raw:')
+        // console.log(node.raw)
         // @ts-ignore
         let res = md_to_html_str(node.raw)
         // @ts-ignore
         s.update(node.start, node.end, res)
-        console.log('s tostring')
-        console.log(s.toString())
+        // console.log('s tostring')
+        // console.log(s.toString())
       }
       // if(node.type === '')
     },
   })
 
-  content = s.toString()
+  // content = s.toString()
 
   const extract = (section: any): string => {
     if (!section || section.start == section.end) return ''
-    return content.slice(section.start, section.end)
+    return s.slice(section.start, section.end)
   }
 
   if (svast.module) {
@@ -236,7 +254,7 @@ async function parse_svm(md_file: string, filename: string) {
 
     let html = svast.fragment.nodes
       .map((node) => {
-        let text = content.slice(node.start, node.end)
+        let text = s.slice(node.start, node.end)
         return text
       })
       .join('')
