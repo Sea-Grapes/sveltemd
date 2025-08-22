@@ -180,15 +180,33 @@ async function parse_svm(md_file: string, filename: string) {
         // console.log(parent)
 
         // @ts-ignore
-        let text = node.raw
-        let inline = !text.includes('\n\n')
-        // console.log('node raw:')
-        // console.log(node.raw)
+        let raw = node.raw
+        console.log('node raw:')
+        console.log(`"${raw}"`)
+
+        let inline = !raw.includes('\n\n')
         // @ts-ignore
-        let res = md_to_html_str(text)
+        // let res = md_to_html_str(raw)
+        let res = ''
         if (inline) {
-          if (res.startsWith('<p>')) res = res.slice(3)
-          if (res.endsWith('</p>')) res = res.slice(0, -4)
+          let start_len = raw.length - raw.trimStart().length
+          let end_len = raw.length - raw.trimEnd().length
+
+          let start_ws = raw.slice(0, start_len)
+          let middle = raw.slice(start_len, raw.length - end_len)
+          let end_ws = raw.slice(raw.length - end_len)
+
+          let tmp = md_to_html_str(middle)
+
+          if (tmp.startsWith('<p>')) tmp = tmp.slice(3)
+          if (tmp.endsWith('</p>')) tmp = tmp.slice(0, -4)
+
+          res = start_ws + tmp + end_ws
+
+          console.log('inline res:')
+          console.log(`"${res}"`)
+        } else {
+          res = md_to_html_str(raw)
         }
         // @ts-ignore
         s.update(node.start, node.end, res)
