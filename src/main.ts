@@ -15,6 +15,7 @@ import { stringifyEntities } from 'stringify-entities'
 import { walk } from 'estree-walker'
 import rehypeStringify from 'rehype-stringify'
 import MagicString from 'magic-string'
+import { encode } from 'html-entities'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -102,10 +103,27 @@ function remark_code() {
   }
 }
 
+function remark_escape_code() {
+  function escape(node: Code | InlineCode) {
+    node.value = encode(node.value)
+  }
+
+  return function (tree: Root) {
+    let nodes: Node[] = []
+
+    visit(tree, 'code', (node) => nodes.push(node))
+    visit(tree, 'inlineCode', (node) => nodes.push(node))
+
+    //@ts-ignore
+    nodes.forEach((node) => escape(node))
+  }
+}
+
 // // allowDangerousHtml = allow script tag
 const md_parser = unified()
   .use(remarkParse)
   // .use(remark_code)
+  .use(remark_escape_code)
   .use(remarkRehype)
   .use(rehypeStringify)
 

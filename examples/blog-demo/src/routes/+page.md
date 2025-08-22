@@ -9,3 +9,11 @@ this is a **test**
 <button class='bg-slate-100 hover:bg-slate-200 rounded-md p-1 px-2 cursor-pointer' onclick={() => { count++ }}>
 This _button_ has been clicked {count} times
 </button>
+
+```js
+console.log('test')
+
+function test() {}
+
+<html>
+```
