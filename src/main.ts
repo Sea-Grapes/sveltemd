@@ -1,22 +1,20 @@
+import { asyncWalk } from 'estree-walker'
 import matter from 'gray-matter'
 import { fromHtml } from 'hast-util-from-html'
-import { toHtml } from 'hast-util-to-html'
+import { encode } from 'html-entities'
+import MagicString from 'magic-string'
 import { Code, InlineCode, Node, Root } from 'mdast'
+import { fromMarkdown } from 'mdast-util-from-markdown'
 import path from 'path'
+import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { codeToHtml } from 'shiki'
 import slash from 'slash'
 import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
-import { Processor, unified } from 'unified'
+import { unified } from 'unified'
 import { visit } from 'unist-util-visit'
-import { stringifyEntities } from 'stringify-entities'
-import { walk } from 'estree-walker'
-import rehypeStringify from 'rehype-stringify'
-import MagicString from 'magic-string'
-import { encode } from 'html-entities'
-import { fromMarkdown } from 'mdast-util-from-markdown'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -104,77 +102,50 @@ function remark_code() {
   }
 }
 
-function remark_escape_code() {
-  function escape(node: Code | InlineCode) {
-    node.value = encode(node.value)
-  }
-
-  return function (tree: Root) {
-    let nodes: Node[] = []
-
-    visit(tree, 'code', (node) => nodes.push(node))
-    visit(tree, 'inlineCode', (node) => nodes.push(node))
-
-    //@ts-ignore
-    nodes.forEach((node) => escape(node))
-  }
-}
-
 // // allowDangerousHtml = allow script tag
 const md_parser = unified()
   .use(remarkParse)
-  // .use(remark_code)
-  .use(remark_escape_code)
-  .use(remarkRehype)
-  .use(rehypeStringify, {
-    characterReferences: {
-      useNamedReferences: true,
-    },
-  })
+  .use(remark_code)
+  .use(remarkRehype, { allowDangerousHtml: true })
+  .use(rehypeStringify, { allowDangerousHtml: true })
 
-function md_to_html_str(string: string) {
-  let res = md_parser.processSync(string)
+async function md_to_html_str(string: string) {
+  let res = await md_parser.process(string)
   return String(res)
 }
 
 // escapes raw svelte + markdown input.
 // only escapes characters that will break svelte parse.
-async function escape_svm(string: string) {
+function escape_svm(string: string) {
   let s = new MagicString(string)
   let mdast = fromMarkdown(string)
 
   // escape svelte breakers in code
-
-  // visit(mdast, 'inlineCode', (node) => {
-  //   if (!node.position?.start.offset || !node.position?.end.offset) return
-
-  //   node.value = node.value.replaceAll('<', '+SVMD_0+')
-  //   node.value = node.value.replaceAll('{', '+SVMD_1+')
-  // })
-
-  let code: Code[] = []
-  visit(mdast, 'code', (node) => code.push(node))
-
-  async function processCode(node: Code) {
+  visit(mdast, (node) => {
     if (!node.position?.start.offset || !node.position?.end.offset) return
+    if (node.type === 'code') {
+      // surely no one will ever use this delimiter
+      // not using html entities because the user may want to write them in code
+      node.value = node.value.replaceAll('<', '+SVMD_0+')
+      node.value = node.value.replaceAll('{', '+SVMD_1+')
 
-    node.value = await codeToHtml(node.value, {
-      theme: 'dark-plus',
-      ...(plugin.code?.shiki_options || {}),
-      lang: node.lang || 'text',
-    })
+      const fence = '```'
+      const lang = node.lang ?? ''
+      const meta = node.meta ? ' ' + node.meta : ''
 
-    // console.log('Val before')
-    // console.log(node.value)
-    node.value = escape_code(node.value)
+      // unfortunately mdast discards true pos data so we have to reserialize
+      // todo: consider parsing code highlighter here to avoid all this
+      node.value = `${fence}${lang}${meta}\n${node.value}\n${fence}`
 
-    console.log('Val after')
-    console.log(node.value)
+      s.update(node.position.start.offset, node.position.end.offset, node.value)
+    } else if (node.type === 'inlineCode') {
+      node.value = node.value.replaceAll('<', '+SVMD_0+')
+      node.value = node.value.replaceAll('{', '+SVMD_1+')
 
-    s.update(node.position.start.offset, node.position.end.offset, node.value)
-  }
-
-  await Promise.all(code.map((c) => processCode(c)))
+      node.value = `\`${node.value}\``
+      s.update(node.position.start.offset, node.position.end.offset, node.value)
+    }
+  })
 
   string = s.toString()
   s = new MagicString(string)
@@ -200,41 +171,30 @@ async function parse_svm(md_file: string, filename: string) {
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
 
-  content = await escape_svm(content)
-  // console.log(content)
+  content = escape_svm(content)
 
   let res = ''
 
   const svast = parse(content, { modern: true })
-  // console.log('Whole ast')
-  // console.log(JSON.stringify(svast.fragment, null, 2))
 
   // perhaps this should be extracted to a js file
   // since estree-walker types are all wrong
-  console.log
-  console.log('Walk')
 
   const s = new MagicString(content)
 
   // @ts-ignore
-  walk(svast, {
-    enter(node, parent, key, index) {
+  await asyncWalk(svast, {
+    async enter(node, parent, key, index) {
       // @ts-ignore
       if (node.type === 'Text' && parent.type === 'Fragment') {
-        // console.log('node')
-        // console.log(parent)
-
         // @ts-ignore
         let raw = node.raw
-        console.log('node raw:')
-        console.log(`"${raw}"`)
 
         raw = raw.replaceAll('+SVMD_0+', '<')
         raw = raw.replaceAll('+SVMD_1+', '{')
 
         let inline = !raw.includes('\n\n')
-        // @ts-ignore
-        // let res = md_to_html_str(raw)
+
         let res = ''
         if (inline) {
           let start_len = raw.length - raw.trimStart().length
@@ -244,28 +204,20 @@ async function parse_svm(md_file: string, filename: string) {
           let middle = raw.slice(start_len, raw.length - end_len)
           let end_ws = raw.slice(raw.length - end_len)
 
-          let tmp = md_to_html_str(middle)
+          let tmp = await md_to_html_str(middle)
 
           if (tmp.startsWith('<p>')) tmp = tmp.slice(3)
           if (tmp.endsWith('</p>')) tmp = tmp.slice(0, -4)
 
           res = start_ws + tmp + end_ws
-
-          console.log('inline res:')
-          console.log(`"${res}"`)
         } else {
-          res = md_to_html_str(raw)
+          res = await md_to_html_str(raw)
         }
         // @ts-ignore
         s.update(node.start, node.end, res)
-        // console.log('s tostring')
-        // console.log(s.toString())
       }
-      // if(node.type === '')
     },
   })
-
-  // content = s.toString()
 
   const extract = (section: any): string => {
     if (!section || section.start == section.end) return ''
