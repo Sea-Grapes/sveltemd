@@ -128,12 +128,12 @@ const md_parser = unified()
 
 function md_to_html_str(string: string) {
   let res = md_parser.processSync(string)
-  return String(res)
+  return escape_code(String(res))
 }
 
 // escapes raw svelte + markdown input.
 // only escapes characters that will break svelte parse.
-async function escape_svm(string: string) {
+async function preprocess(string: string) {
   let s = new MagicString(string)
   let mdast = fromMarkdown(string)
 
@@ -168,9 +168,6 @@ async function escape_svm(string: string) {
   string = s.toString()
   s = new MagicString(string)
 
-  console.log('POS1')
-  console.log(s.toString())
-
   let hast = fromHtml(string, { fragment: true })
 
   // escape any < not in html
@@ -179,14 +176,17 @@ async function escape_svm(string: string) {
 
     // we can't trust hast text, it parses char entities and stuff
     let value = s.slice(node.position.start.offset, node.position.end.offset)
+
     value = value.replaceAll('<', '+SVMD_0+')
+
     // don't replace { because svelte uses it
     // if we wanted to allow the user an easy way to type { perhaps we could escape \{
 
     s.update(node.position.start.offset, node.position.end.offset, value)
   })
 
-  return s.toString()
+  let res = s.toString()
+  return res
 }
 
 async function parse_svm(md_file: string, filename: string) {
@@ -196,7 +196,7 @@ async function parse_svm(md_file: string, filename: string) {
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
 
-  content = await escape_svm(content)
+  content = await preprocess(content)
 
   let res = ''
 

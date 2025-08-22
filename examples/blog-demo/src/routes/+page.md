@@ -13,3 +13,7 @@ This _button_ has been clicked {count} times
 This is some test text
 
 &#123;
+
+```js
+console.log('test')
+```

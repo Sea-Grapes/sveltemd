@@ -178,3 +178,11 @@ Thoughts
 - Logic blocks are trickier because their special character is `{`, but they can have `{` inside them (such as in javascript). so we can't just match { to } because it may not be the correct ending. Not sure about this one.
 - Code blocks and inline code definitely need all of these to be escaped. < chars in code could be escaped by the hast. `{` ones can't be escaped automatically in the same way, so perhaps we could search for backticks. Not sure about this one.
 - Definitely will remove the script/css tags before escaping. Also unsure how to detect these properly.
+
+
+# "Preprocess" in the preprocessor
+
+I just realized there can be a "preprocess" phase that the user can customize. This runs before svelte-parse, and selectively replaces certain things that would normally break svelte parser.
+- Code blocks are processed here and converted to html.
+- This can allow the user to do "impossible" things, like having latex directly in markdown.
+- Added side-benefits of synchronus svast walking, no custom escaping
