@@ -16,6 +16,7 @@ import { walk } from 'estree-walker'
 import rehypeStringify from 'rehype-stringify'
 import MagicString from 'magic-string'
 import { encode } from 'html-entities'
+import { fromMarkdown } from 'mdast-util-from-markdown'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
 
@@ -137,31 +138,34 @@ function md_to_html_str(string: string) {
 function escape_svm(string: string) {
   let s = new MagicString(string)
 
-  let ast = fromHtml(string, { fragment: true })
+  let ast = fromMarkdown(string)
 
   console.log('hast')
   console.log(ast)
 
   // escape any < not in html
-  visit(ast, 'text', (node) => {
+  visit(ast, (node) => {
+    if (node.type === 'html') return
     if (!node.position?.start.offset || !node.position?.end.offset) return
 
-    // surely no one will ever use this delimiter
-    node.value = node.value.replaceAll('<', '+SVMD_0+') //stringifyEntities(node.value, { subset: ['<'] })
+    if ('value' in node && typeof node.value === 'string') {
+      // surely no one will ever use this delimiter
+      node.value = node.value.replaceAll('<', '+SVMD_0+') //stringifyEntities(node.value, { subset: ['<'] })
 
-    // bracket logic may be simplified if I can find a good way to avoid escaping svelte logic.
+      // bracket logic may be simplified if I can find a good way to avoid escaping svelte logic.
 
-    // escape brackets in multiline code
-    node.value = node.value.replace(/```[\s\S]*?```/g, (match) => {
-      return match.replaceAll('{', '+SVMD_1+')
-    })
+      // escape brackets in multiline code
+      node.value = node.value.replace(/```[\s\S]*?```/g, (match) => {
+        return match.replaceAll('{', '+SVMD_1+')
+      })
 
-    // escape brackets in inline code
-    node.value = node.value.replace(/`[^`]*`/g, (match) => {
-      return match.replaceAll('{', '+SVMD_1')
-    })
+      // escape brackets in inline code
+      node.value = node.value.replace(/`[^`]*`/g, (match) => {
+        return match.replaceAll('{', '+SVMD_1')
+      })
 
-    s.update(node.position.start.offset, node.position.end.offset, node.value)
+      s.update(node.position.start.offset, node.position.end.offset, node.value)
+    }
   })
 
   return s.toString()
