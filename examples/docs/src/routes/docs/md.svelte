@@ -3,8 +3,8 @@
   let { children, title } = $props()
 </script>
 
-<h1>{title}</h1>
+<h1 class="font-bold text-3xl tracking-tight">{title}</h1>
 
-<article>
+<article class="custom min-w-full">
   {@render children?.()}
 </article>

@@ -21,7 +21,7 @@
 
 <!-- very hacky css warning (This is just for quick dx) -->
 <aside
-  class="fixed left-0 bottom-0 h-full bg-zinc-100 lg:translate-0 -translate-x-[16rem] transition"
+  class="fixed z-20 left-0 bottom-0 h-full bg-zinc-100 lg:translate-0 -translate-x-[var(--sidebar-min)] transition"
 >
   <div class="max-w-[30ch] ml-auto py-4 px-6">
     <a
@@ -44,9 +44,7 @@
   </div>
 </aside>
 
-<div
-  class="flex lg:pl-[max(var(--sidebar-min),calc(50vw-(var(--article-max)/2)))] min-h-screen"
->
+<div class="flex lg:pl-[max(var(--sidebar-min),calc(50vw-(var(--article-max)/2)))] min-h-screen">
   <div class="grow mx-auto px-1-6 py-12 max-w-[var(--article-max)]">
     {@render children?.()}
   </div>

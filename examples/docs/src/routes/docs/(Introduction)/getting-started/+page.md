@@ -6,7 +6,7 @@ title: Getting Started
   let count = $state(0);
 </script>
 
-## Installing
+# Installing
 
 _Note: package not published yet._
 
@@ -27,3 +27,7 @@ const config = {
 ```
 
 What if I wanted to write some
+
+# This is a test
+
+how does this look is it seperated
