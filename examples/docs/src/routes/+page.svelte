@@ -19,26 +19,19 @@
         >
           Powered by SvelteKit and Sveltemd
         </h1>
-        <h2 class="text-2xl text-zinc-500 font-medium">
-          Markdown to Beautiful Docs in Minutes
-        </h2>
+        <h2 class="text-2xl text-zinc-500 font-medium">Markdown to Beautiful Docs in Minutes</h2>
       </div>
-      <div
-        class="cta inline-flex gap-2 *:px-4 *:py-2 *:rounded-full font-medium text-zinc-700"
-      >
-        <a
-          href="/"
-          class="bg-indigo-400 text-white transition-colors hover:bg-indigo-500"
-        >
+      <div class="cta inline-flex gap-2 *:px-4 *:py-2 *:rounded-full font-medium text-zinc-700">
+        <a href="/docs" class="bg-indigo-400 text-white transition-colors hover:bg-indigo-500">
           What is Sveltemd?
         </a>
-        <a href="/" class="bg-zinc-100 hover:bg-zinc-200 transition-colors"
+        <a href="/docs/getting-started" class="bg-zinc-100 hover:bg-zinc-200 transition-colors"
           >Quickstart</a
         >
         <a
-          href="/"
-          class="bg-zinc-100 hover:bg-zinc-200 transition-colors cursor-pointer"
-          >Github</a
+          href="https://github.com/Sea-Grapes/sveltemd"
+          target="_blank"
+          class="bg-zinc-100 hover:bg-zinc-200 transition-colors cursor-pointer">Github</a
         >
       </div>
     </div>
@@ -58,19 +51,14 @@
         <IMemo />
       </div>
       <h1>Focus on your content</h1>
-      <p>
-        Effortlessly create beautiful documentation sites with just markdown.
-      </p>
+      <p>Effortlessly create beautiful documentation sites with just markdown.</p>
     </card>
     <card>
       <div>
         <IVite />
       </div>
       <h1>Enjoy the Vite DX</h1>
-      <p>
-        Instant server start, lightning fast hot updates, and leverage Vite
-        ecosystem plugins.
-      </p>
+      <p>Instant server start, lightning fast hot updates, and leverage Vite ecosystem plugins.</p>
     </card>
     <card>
       <div>
@@ -78,8 +66,7 @@
       </div>
       <h1>Customize with Svelte</h1>
       <p>
-        Use Svelte syntax and components directly in markdown, or build custom
-        themes with Svelte.
+        Use Svelte syntax and components directly in markdown, or build custom themes with Svelte.
       </p>
     </card>
     <card>
@@ -87,10 +74,7 @@
         <IRocket />
       </div>
       <h1>Ship Fast Sites</h1>
-      <p>
-        Fast initial load with static HTML, fast post-load navigation with
-        client-side routing.
-      </p>
+      <p>Fast initial load with static HTML, fast post-load navigation with client-side routing.</p>
     </card>
   </div>
 </section>

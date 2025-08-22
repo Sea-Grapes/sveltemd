@@ -22,12 +22,6 @@ import { markdown } from 'sveltemd'
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   extensions: ['.svelte', '.md'],
-  preprocess: [vitePreprocess(), markdown()],
+  preprocess: [vitePreprocess(), markdown()]
 }
 ```
-
-What if I wanted to write some
-
-# This is a test
-
-how does this look is it seperated

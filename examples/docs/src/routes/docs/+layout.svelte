@@ -22,7 +22,7 @@
     )
   }
 
-  console.log(data)
+  // console.log(data)
 </script>
 
 <!-- very hacky css warning (This is just for quick dx) -->

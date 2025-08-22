@@ -5,16 +5,24 @@
     margin-top: 1em;
   }
 
+  line-height: 1.7;
+  font-size: 16.5px;
+  text-wrap: pretty;
+
   h1,
   h2,
   h3,
   h4,
   h5 {
-    @apply font-medium tracking-tight;
+    @apply font-medium tracking-tight text-balance;
   }
 
   h1 {
     @apply text-2xl pt-4 border-t border-zinc-200 mt-16;
+  }
+
+  a {
+    @apply text-indigo-400 font-medium underline;
   }
 
   h2 {
@@ -22,7 +30,8 @@
   }
 
   p {
-    @apply text-slate-700;
+    /* @apply text-slate-700; */
+    @apply text-pretty;
   }
 
   pre:has(> code) {

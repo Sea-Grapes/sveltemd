@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit'
 
 export function load() {
-  redirect(308, '/docs/getting-started')
+  redirect(308, '/docs/what-is-sveltemd')
 }
