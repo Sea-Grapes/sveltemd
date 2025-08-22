@@ -147,11 +147,6 @@ function escape_svm(string: string) {
   })
 
   return s.toString()
-
-  // return toHtml(ast, {
-  //   allowDangerousCharacters: true,
-  //   allowDangerousHtml: true,
-  // })
 }
 
 async function parse_svm(md_file: string, filename: string) {
@@ -186,10 +181,15 @@ async function parse_svm(md_file: string, filename: string) {
 
         // @ts-ignore
         let text = node.raw
+        let inline = !text.includes('\n\n')
         // console.log('node raw:')
         // console.log(node.raw)
         // @ts-ignore
-        let res = md_to_html_str(node.raw)
+        let res = md_to_html_str(text)
+        if (inline) {
+          if (res.startsWith('<p>')) res = res.slice(3)
+          if (res.endsWith('</p>')) res = res.slice(0, -4)
+        }
         // @ts-ignore
         s.update(node.start, node.end, res)
         // console.log('s tostring')
