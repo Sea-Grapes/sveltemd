@@ -12,7 +12,7 @@ import { globSync } from 'tinyglobby'
 import { Processor, unified } from 'unified'
 import { visit } from 'unist-util-visit'
 import { stringifyEntities } from 'stringify-entities'
-import { asyncWalk, walk } from 'estree-walker'
+import { walk } from 'estree-walker'
 import rehypeStringify from 'rehype-stringify'
 import MagicString from 'magic-string'
 import { encode } from 'html-entities'
@@ -80,8 +80,6 @@ function escape_code(string: string) {
 
 function remark_code() {
   async function escape(node: Code | InlineCode) {
-    console.log('IN')
-    console.log(node)
     if (node.type === 'code') {
       const lang = node.lang || 'text'
       node.value = await codeToHtml(node.value, {
@@ -125,48 +123,58 @@ function remark_escape_code() {
 // // allowDangerousHtml = allow script tag
 const md_parser = unified()
   .use(remarkParse)
-  .use(remark_code)
-  // .use(remark_escape_code)
-  .use(remarkRehype, { allowDangerousHtml: true })
-  .use(rehypeStringify, { allowDangerousHtml: true })
+  // .use(remark_code)
+  .use(remark_escape_code)
+  .use(remarkRehype)
+  .use(rehypeStringify, {
+    characterReferences: {
+      useNamedReferences: true,
+    },
+  })
 
-async function md_to_html_str(string: string) {
-  let res = await md_parser.process(string)
+function md_to_html_str(string: string) {
+  let res = md_parser.processSync(string)
   return String(res)
 }
 
 // escapes raw svelte + markdown input.
 // only escapes characters that will break svelte parse.
-function escape_svm(string: string) {
+async function escape_svm(string: string) {
   let s = new MagicString(string)
   let mdast = fromMarkdown(string)
 
   // escape svelte breakers in code
-  visit(mdast, (node) => {
+
+  // visit(mdast, 'inlineCode', (node) => {
+  //   if (!node.position?.start.offset || !node.position?.end.offset) return
+
+  //   node.value = node.value.replaceAll('<', '+SVMD_0+')
+  //   node.value = node.value.replaceAll('{', '+SVMD_1+')
+  // })
+
+  let code: Code[] = []
+  visit(mdast, 'code', (node) => code.push(node))
+
+  async function processCode(node: Code) {
     if (!node.position?.start.offset || !node.position?.end.offset) return
-    if (node.type === 'code') {
-      // surely no one will ever use this delimiter
-      // not using html entities because the user may want to write them in code
-      node.value = node.value.replaceAll('<', '+SVMD_0+')
-      node.value = node.value.replaceAll('{', '+SVMD_1+')
 
-      const fence = '```'
-      const lang = node.lang ?? ''
-      const meta = node.meta ? ' ' + node.meta : ''
+    node.value = await codeToHtml(node.value, {
+      theme: 'dark-plus',
+      ...(plugin.code?.shiki_options || {}),
+      lang: node.lang || 'text',
+    })
 
-      // unfortunately mdast discards true pos data so we have to reserialize
-      // todo: consider parsing code highlighter here to avoid all this
-      node.value = `${fence}${lang}${meta}\n${node.value}\n${fence}`
+    // console.log('Val before')
+    // console.log(node.value)
+    node.value = escape_code(node.value)
 
-      s.update(node.position.start.offset, node.position.end.offset, node.value)
-    } else if (node.type === 'inlineCode') {
-      node.value = node.value.replaceAll('<', '+SVMD_0+')
-      node.value = node.value.replaceAll('{', '+SVMD_1+')
+    console.log('Val after')
+    console.log(node.value)
 
-      node.value = `\`${node.value}\``
-      s.update(node.position.start.offset, node.position.end.offset, node.value)
-    }
-  })
+    s.update(node.position.start.offset, node.position.end.offset, node.value)
+  }
+
+  await Promise.all(code.map((c) => processCode(c)))
 
   string = s.toString()
   s = new MagicString(string)
@@ -192,7 +200,7 @@ async function parse_svm(md_file: string, filename: string) {
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
 
-  content = escape_svm(content)
+  content = await escape_svm(content)
   // console.log(content)
 
   let res = ''
@@ -209,8 +217,8 @@ async function parse_svm(md_file: string, filename: string) {
   const s = new MagicString(content)
 
   // @ts-ignore
-  await asyncWalk(svast, {
-    async enter(node, parent, key, index) {
+  walk(svast, {
+    enter(node, parent, key, index) {
       // @ts-ignore
       if (node.type === 'Text' && parent.type === 'Fragment') {
         // console.log('node')
@@ -236,7 +244,7 @@ async function parse_svm(md_file: string, filename: string) {
           let middle = raw.slice(start_len, raw.length - end_len)
           let end_ws = raw.slice(raw.length - end_len)
 
-          let tmp = await md_to_html_str(middle)
+          let tmp = md_to_html_str(middle)
 
           if (tmp.startsWith('<p>')) tmp = tmp.slice(3)
           if (tmp.endsWith('</p>')) tmp = tmp.slice(0, -4)
@@ -246,7 +254,7 @@ async function parse_svm(md_file: string, filename: string) {
           console.log('inline res:')
           console.log(`"${res}"`)
         } else {
-          res = await md_to_html_str(raw)
+          res = md_to_html_str(raw)
         }
         // @ts-ignore
         s.update(node.start, node.end, res)
