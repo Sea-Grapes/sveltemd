@@ -12,10 +12,4 @@ This _button_ has been clicked {count} times
 
 This is some test text
 
-```js
-console.log('test')
-
-function test() {}
-```
-
-Why is this
+&#123;
