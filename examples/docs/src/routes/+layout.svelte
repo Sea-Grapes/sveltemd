@@ -16,7 +16,7 @@
 <main class="min-h-screen">
   <nav
     class="{page.url.pathname !== '/' || (scrollY.current && scrollY.current > 10)
-      ? 'bg-white/80 border-b backdrop-blur-2xl'
+      ? 'bg-white/80 border-b backdrop-blur-lg'
       : ''} sticky border-zinc-300 top-0 transition-colors z-10"
   >
     <div

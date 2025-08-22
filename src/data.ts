@@ -18,7 +18,7 @@ export interface MetaData {
   url: string
   url_raw: string
 
-  [key: string]: unknown
+  [key: string]: any
 }
 
 export function metadata({ path }: FrontmatterOptions = {}): MetaData[] {
