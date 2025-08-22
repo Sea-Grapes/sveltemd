@@ -137,35 +137,42 @@ function md_to_html_str(string: string) {
 // only escapes characters that will break svelte parse.
 function escape_svm(string: string) {
   let s = new MagicString(string)
+  let mdast = fromMarkdown(string)
 
-  let ast = fromMarkdown(string)
-
-  console.log('hast')
-  console.log(ast)
-
-  // escape any < not in html
-  visit(ast, (node) => {
-    if (node.type === 'html') return
+  // escape svelte breakers in code
+  visit(mdast, (node) => {
     if (!node.position?.start.offset || !node.position?.end.offset) return
-
-    if ('value' in node && typeof node.value === 'string') {
+    if (node.type === 'code') {
       // surely no one will ever use this delimiter
-      node.value = node.value.replaceAll('<', '+SVMD_0+') //stringifyEntities(node.value, { subset: ['<'] })
+      // not using html entities because the user may want to write them in code
+      node.value = node.value.replaceAll('<', '+SVMD_0+')
+      node.value = node.value.replaceAll('{', '+SVMD_1+')
 
-      // bracket logic may be simplified if I can find a good way to avoid escaping svelte logic.
+      const fence = '```'
+      const lang = node.lang ?? ''
+      const meta = node.meta ? ' ' + node.meta : ''
 
-      // escape brackets in multiline code
-      node.value = node.value.replace(/```[\s\S]*?```/g, (match) => {
-        return match.replaceAll('{', '+SVMD_1+')
-      })
-
-      // escape brackets in inline code
-      node.value = node.value.replace(/`[^`]*`/g, (match) => {
-        return match.replaceAll('{', '+SVMD_1')
-      })
+      // unfortunately mdast discards true pos data so we have to reserialize
+      // todo: consider parsing code highlighter here to avoid all this
+      node.value = `${fence}${lang}${meta}\n${node.value}\n${fence}`
 
       s.update(node.position.start.offset, node.position.end.offset, node.value)
     }
+  })
+
+  string = s.toString()
+  s = new MagicString(string)
+  let hast = fromHtml(string, { fragment: true })
+
+  // escape any < not in html
+  visit(hast, 'text', (node) => {
+    if (!node.position?.start.offset || !node.position?.end.offset) return
+
+    node.value = node.value.replaceAll('<', '+SVMD_0+')
+    // don't replace { because svelte uses it
+    // if we wanted to allow the user an easy way to type { perhaps we could escape \{
+
+    s.update(node.position.start.offset, node.position.end.offset, node.value)
   })
 
   return s.toString()
@@ -205,6 +212,9 @@ async function parse_svm(md_file: string, filename: string) {
         let raw = node.raw
         console.log('node raw:')
         console.log(`"${raw}"`)
+
+        raw = raw.replaceAll('+SVMD_0+', '<')
+        raw = raw.replaceAll('+SVMD_1+', '{')
 
         let inline = !raw.includes('\n\n')
         // @ts-ignore
