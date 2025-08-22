@@ -2,11 +2,15 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
+  /* rem spacers */
   --spacing-1-5: clamp(1rem, 5vw, 5rem);
+  --spacing-1-6: clamp(1rem, -1.0455rem + 9.0909vw, 6rem);
+
+  /* tw spacers */
   --spacing-16-32: clamp(4rem, 2.3636rem + 7.2727vw, 8rem);
   --spacing-16-24: clamp(4rem, 3.185rem + 3.6322vw, 6rem);
 
-  --container-8xl: 1536px;
+  --container-8xl: 87rem;
 }
 
 @layer base {

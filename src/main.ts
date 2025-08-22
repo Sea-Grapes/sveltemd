@@ -31,6 +31,7 @@ interface PluginConfig {
   code?: {
     shiki_options: ShikiOptions
   }
+  frontmatter?: Function
 }
 
 let plugin: PluginConfig = {
@@ -196,6 +197,8 @@ async function parse_svm(md_file: string, filename: string) {
     if (!section || section.start == section.end) return ''
     return s.slice(section.start, section.end)
   }
+
+  if (data && plugin.frontmatter) data = plugin.frontmatter(data)
 
   if (svast.module) {
     let module = extract(svast.module)

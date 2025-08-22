@@ -1,11 +1,21 @@
-<script>
+<script lang="ts">
   import ISvelte from '$lib/icons/ISvelte.svelte'
-  import './md.css'
-  import { metadata } from 'sveltemd/data'
+  import { metadata, type MetaData } from 'sveltemd/data'
 
   let { children } = $props()
 
-  let data = metadata()
+  let data = metadata({ path: '/docs/' })
+
+  let tree: Record<string, MetaData[]> = {}
+
+  data.forEach((d) => {
+    let parts = d.path_raw.split('/').slice(3, -1)
+    let group = parts[1].slice(1, -1)
+
+    if (!tree[group]) tree[group] = []
+    tree[group].push(d)
+  })
+
   console.log(data)
 </script>
 
@@ -13,25 +23,33 @@
 <aside
   class="fixed left-0 bottom-0 h-full bg-zinc-100 lg:translate-0 -translate-x-[16rem] transition"
 >
-  <div class="max-w-[30ch] ml-auto py-4 px-5">
-    <a href="/" class="text-lg flex gap-2 items-center font-medium">
+  <div class="max-w-[30ch] ml-auto py-4 px-6">
+    <a
+      href="/"
+      class="text-lg flex gap-2 items-center font-medium sticky border-b pb-4 border-zinc-300"
+    >
       <ISvelte />
       Sveltemd</a
     >
-    {#each data as page}
-      <a href={page.url}>{page.title}</a>
-    {/each}
+    <div class="space-y-2 py-4 px-2 text-[15px]">
+      {#each Object.entries(tree) as [group, posts]}
+        <div>
+          <h1 class="font-medium cursor-pointer">{group}</h1>
+        </div>
+        {#each posts as post}
+          <a class="block" href={post.url}>{post.title}</a>
+        {/each}
+      {/each}
+    </div>
   </div>
 </aside>
 
 <div
-  class="flex lg:pl-[max(var(--sidebar-min),calc(50vw-(var(--article-max)/2)))]"
+  class="flex lg:pl-[max(var(--sidebar-min),calc(50vw-(var(--article-max)/2)))] min-h-screen"
 >
-  <article
-    class="prose grow mx-auto px-1-5 py-16-24 max-w-[var(--article-max)]"
-  >
+  <div class="grow mx-auto px-1-6 py-12 max-w-[var(--article-max)]">
     {@render children?.()}
-  </article>
+  </div>
   <aside class="hidden xl:block"></aside>
 </div>
 
@@ -40,7 +58,7 @@
 
   :root {
     --sidebar-min: 16rem;
-    --article-max: 50rem;
+    --article-max: 55rem;
   }
 
   aside {

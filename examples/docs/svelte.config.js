@@ -1,6 +1,7 @@
 import adapter from '@sveltejs/adapter-auto'
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 import { markdown } from 'sveltemd'
+import { titleCase } from 'title-case'
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -14,6 +15,12 @@ const config = {
         shiki_options: {
           theme: 'vitesse-light',
         },
+      },
+      frontmatter: (data) => {
+        console.log('PROCESS')
+        console.log(data)
+        if (data.title) data.title = titleCase(data.title)
+        return data
       },
     }),
   ],
