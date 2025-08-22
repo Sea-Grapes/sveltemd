@@ -161,10 +161,10 @@ async function parse_svm(md_file: string, filename: string) {
         // @ts-ignore
         let raw = node.data
 
-        raw = raw.replaceAll('+SVMD_0+', '<')
-        raw = raw.replaceAll('+SVMD_1+', '{')
+        raw = raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n')
 
         let inline = !raw.includes('\n\n')
+        // let inline = false
         let res = ''
         if (inline) {
           let start_len = raw.length - raw.trimStart().length
@@ -176,8 +176,11 @@ async function parse_svm(md_file: string, filename: string) {
 
           let tmp = md_to_html_str(middle)
 
-          if (tmp.startsWith('<p>')) tmp = tmp.slice(3)
-          if (tmp.endsWith('</p>')) tmp = tmp.slice(0, -4)
+          // if (tmp.startsWith('<p>')) tmp = tmp.slice(3)
+          // if (tmp.endsWith('</p>')) tmp = tmp.slice(0, -4)
+          if (tmp.startsWith('<p>') && tmp.endsWith('</p>')) {
+            tmp = tmp.slice(3, -4)
+          }
 
           res = start_ws + tmp + end_ws
         } else {

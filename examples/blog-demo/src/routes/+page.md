@@ -6,9 +6,7 @@
 
 this is a **test**
 
-<button class='bg-slate-100 hover:bg-slate-200 rounded-md p-1 px-2 cursor-pointer' onclick={() => { count++ }}>
-This _button_ has been clicked {count} times
-</button>
+<button onclick={() => { count++ }}>This **button** has been _clicked_ {count} times</button>
 
 This is some test text
 
@@ -17,3 +15,10 @@ This is some test text
 ```js
 console.log('test')
 ```
+
+<style>
+  @reference 'tailwindcss';
+  button {
+    @apply bg-slate-100 hover:bg-slate-200 rounded-md p-1 px-2 cursor-pointer;
+  }
+</style>
