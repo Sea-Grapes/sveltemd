@@ -27,7 +27,7 @@
   }
 
   h2 {
-    @apply text-lg;
+    @apply text-xl;
   }
 
   p {
