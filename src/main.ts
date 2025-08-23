@@ -1,8 +1,8 @@
-import { walk } from 'estree-walker'
+import { asyncWalk, walk } from 'estree-walker'
 import matter from 'gray-matter'
 import { fromHtml } from 'hast-util-from-html'
 import MagicString from 'magic-string'
-import { Code } from 'mdast'
+import { Code, InlineCode, Root } from 'mdast'
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import path from 'path'
 import rehypeStringify from 'rehype-stringify'
@@ -76,13 +76,40 @@ function escapeSvelte(string: string) {
   return string
 }
 
+function remarkShiki() {
+  async function process(node: Code | InlineCode) {
+    if (node.type === 'code') {
+      const lang = node.lang || 'text'
+      node.value = await codeToHtml(node.value, {
+        theme: 'dark-plus',
+        ...(plugin.code?.shiki_options || {}),
+        lang,
+      })
+      // @ts-ignore
+      node.type = 'html'
+    }
+    node.value = node.value.replaceAll('{', '&#123;')
+  }
+
+  return async function (tree: Root) {
+    let nodes: any[] = []
+
+    visit(tree, 'code', (node) => nodes.push(node))
+    visit(tree, 'inlineCode', (node) => nodes.push(node))
+
+    // @ts-ignore
+    await Promise.all(nodes.map((node) => process(node)))
+  }
+}
+
 const md_parser = unified()
   .use(remarkParse)
+  .use(remarkShiki)
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeStringify, { allowDangerousHtml: true })
 
-function md_to_html_str(string: string) {
-  let res = String(md_parser.processSync(string))
+async function md_to_html_str(string: string) {
+  let res = String(await md_parser.process(string))
   res = res.replaceAll('{', '&#123;')
   return res
 }
@@ -170,8 +197,8 @@ async function parse_svm(md_file: string, filename: string) {
   let s = new MagicString(content)
 
   // @ts-ignore
-  walk(svast, {
-    enter(node, parent, key, index) {
+  await asyncWalk(svast, {
+    async enter(node, parent, key, index) {
       // @ts-ignore
       if (node.type === 'Text' && parent.type === 'Fragment') {
         // @ts-ignore
@@ -194,7 +221,7 @@ async function parse_svm(md_file: string, filename: string) {
           let middle = raw.slice(start_len, raw.length - end_len)
           let end_ws = raw.slice(raw.length - end_len)
 
-          let tmp = md_to_html_str(middle)
+          let tmp = await md_to_html_str(middle)
 
           // if (tmp.startsWith('<p>')) tmp = tmp.slice(3)
           // if (tmp.endsWith('</p>')) tmp = tmp.slice(0, -4)
@@ -204,7 +231,7 @@ async function parse_svm(md_file: string, filename: string) {
 
           res = start_ws + tmp + end_ws
         } else {
-          res = md_to_html_str(raw)
+          res = await md_to_html_str(raw)
         }
         // @ts-ignore
         s.update(node.start, node.end, res)
