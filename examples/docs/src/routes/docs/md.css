@@ -15,6 +15,7 @@
   h4,
   h5 {
     @apply font-medium tracking-tight text-balance;
+    margin-block-start: 2em;
   }
 
   h1 {
@@ -26,7 +27,7 @@
   }
 
   h2 {
-    @apply text-xl;
+    @apply text-lg;
   }
 
   p {

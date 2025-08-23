@@ -10,3 +10,5 @@ Sveltemd works by leveraging the parse function exported by `svelte/compiler`. I
 2. call the [`parse`](https://svelte.dev/docs/svelte/svelte-compiler#parse) function from svelte - this generates a Svelte Abstract Syntax Tree (Svast), basically a json representation of your svelte code.
 3. Go to every text node in the svelte AST, and parse it as markdown.
 4. Congrats, your svelte has markdown now! 😊
+
+> Todo
