@@ -192,3 +192,26 @@ I just realized there can be a "preprocess" phase that the user can customize. T
 Currently preprocessor runs before everything, but it also handles code blocks. The idea was to parse everything that breaks svelte first (including code blocks). The downside is this requires placeholders (html comments). This could have unintended consequences.
 - The alternative solution is to use custom escape sequences, like `+#SVMD0;` perhaps. These would only need to escape invalid `<` and `{` characters, and then escaping preprocess would only be responsible for strictly escaping. Then they could be replaced after (before md parsing). This *may* be good I cannot tell.
 - Cons: The obvious downside is that users cannot type that escape sequence anymore, but why would they need to? It also means more placeholders instead of just a few comments. It also means magic-string will have a lot of replace/replaceAll to do (but maybe its intended for this?) The pros are it unifies the md parsing again. This may be very good for custom markdown components though.
+
+
+1. Process before (code blocks, latex) + escaping
+Pros
+- Somewhat simpler. We parse with mdast first, then use positional info right away.
+- Somewhat easier to understand. Only 1 parsing step. (technically 2 if you count replacing)
+Cons
+- requires comment placeholders which sometimes break (ex. in block quotes) and require replacement after everything (hacky)
+- Cannot be used like other markdown features (ex. cannot be used inline or in literally any text node identified by svelte)
+
+2. Only escape with custom escapes `+#SVMD0;`, process after in markdown
+Pros
+- same freedom to use markdown as other features - you can have inline code blocks, latex, etc. go crazy with it
+- actually maybe not. I just realized the mdast will not detect code blocks that are invalid to escape them.
+- probably 100% correct - can have code blocks in blockquotes and every other markdown feature
+
+Cons
+- Somewhat harder to understand. requires escaping first, then replacing escapes, so that markdown can use it later. ("3" parsing steps)
+- requires custom escape characters, which could be escaped `\+#SVMD0;` but then would require escaping logic for just these local areas. Maybe custom escapes are ok though since you can't write raw html entities in markdown anyway. &\#123; Oh wait you can write raw entities - huh. Not sure how that works. I guess any special symbol for markdown purposes can be escaped, and # is a special symbol for headings. More research necessary.
+- requires somewhat complex escaping logic. For example, to escape code blocks, we can either find every index of invalid characters and replace them in magic-string, or we can reserialize the code block as a string, replace it normally, then swap it into the magic string.
+
+3. The golden ideal (impossible I think)
+- ideally if we somehow knew exactly where svelte blocks containing `{` were, we could escape every other `{`, thus not needing any custom escaping logic. Unfortunately the only 100% true way to identify logic blocks is with the svelte parser, which we need to escape *before*. We can't use the svelte parser to escape before the svelte parser. Perhaps there is a genius way to solve this but I can't think of any.

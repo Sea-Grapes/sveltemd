@@ -26,6 +26,16 @@ const config = {
 }
 ```
 
+<div>
+```js
+console.log('test')
+```
+</div>
+
+> bq
+>
 > ```js
 > console.log('test')
 > ```
+>
+> end bq
