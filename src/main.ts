@@ -1,9 +1,8 @@
 import { walk } from 'estree-walker'
 import matter from 'gray-matter'
 import { fromHtml } from 'hast-util-from-html'
-import { encode } from 'html-entities'
 import MagicString from 'magic-string'
-import { Code, InlineCode, Node, Root } from 'mdast'
+import { Code } from 'mdast'
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import path from 'path'
 import rehypeStringify from 'rehype-stringify'
@@ -133,7 +132,15 @@ async function preprocess(string: string) {
   s = new MagicString(string)
   let hast = fromHtml(string, { fragment: true })
 
-  visit(hast, 'text', (node) => {
+  let skip_nodes = ['script', 'style']
+
+  visit(hast, 'text', (node, index, parent) => {
+    if (
+      parent &&
+      parent.type === 'element' &&
+      skip_nodes.includes(parent.tagName)
+    )
+      return
     if (!node.position?.start.offset || !node.position?.end.offset) return
 
     let res = string.slice(node.position.start.offset, node.position.end.offset)

@@ -4,6 +4,7 @@ title: Getting Started
 
 <script>
   let count = $state(0);
+  console.log('<')
 </script>
 
 # Installing
@@ -25,17 +26,3 @@ const config = {
   preprocess: [vitePreprocess(), markdown()]
 }
 ```
-
-<div>
-```js
-console.log('test')
-```
-</div>
-
-> bq
->
-> ```js
-> console.log('test')
-> ```
->
-> end bq

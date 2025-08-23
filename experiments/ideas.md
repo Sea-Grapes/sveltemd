@@ -206,6 +206,7 @@ Cons
 Pros
 - same freedom to use markdown as other features - you can have inline code blocks, latex, etc. go crazy with it
 - actually maybe not. I just realized the mdast will not detect code blocks that are invalid to escape them.
+  - actually perhaps it could be done by calling mdast inside every hast text node. But this may be slow idk.
 - probably 100% correct - can have code blocks in blockquotes and every other markdown feature
 
 Cons
