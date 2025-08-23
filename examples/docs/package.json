@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "pnpm run build:plugin && vite build",
-    "build:plugin": "npm --prefix ../../ run build",
+    "build": "pnpm run build:vercel && vite build",
+    "build:vercel": "npm --prefix ../../ run build:vercel",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
