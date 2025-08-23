@@ -1,0 +1,69 @@
+
+
+async function preprocess_2(string: string) {
+  let placeholders: string[] = []
+
+  let s = new MagicString(string)
+  let mdast = fromMarkdown(string)
+
+  visit(mdast, 'inlineCode', (node) => {
+    if (!node.position?.start.offset || !node.position?.end.offset) return
+
+    // this feels safer than shifting indexes
+    let res = '`' + escapeSvelte(node.value) + '`'
+    s.update(node.position.start.offset, node.position.end.offset, res)
+  })
+
+  let code: Code[] = []
+  visit(mdast, 'code', (node) => {
+    code.push(node)
+  })
+
+  async function processCode(node: Code) {
+    if (!node.position?.start.offset || !node.position?.end.offset) return
+
+    let res = await codeToHtml(node.value, {
+      theme: 'dark-plus',
+      ...(plugin.code?.shiki_options || {}),
+      lang: node.lang || 'text',
+    })
+
+    // res = escapeSvelte(res)
+    res = res.replaceAll('{', '&#123;')
+
+    // placehold this one so it doesn't get parsed as markdown
+    // the alternative is to placehold all < and { in code blocks
+    // with a proprietary placeholder, which is not the best
+    let id = `<!--SVMD_${placeholders.length}-->`
+    placeholders.push(res)
+
+    s.update(node.position.start.offset, node.position.end.offset, id)
+  }
+
+  await Promise.all(code.map((c) => processCode(c)))
+
+  string = s.toString()
+  s = new MagicString(string)
+  let hast = fromHtml(string, { fragment: true })
+
+  let skip_nodes = ['script', 'style']
+
+  visit(hast, 'text', (node, index, parent) => {
+    if (
+      parent &&
+      parent.type === 'element' &&
+      skip_nodes.includes(parent.tagName)
+    )
+      return
+    if (!node.position?.start.offset || !node.position?.end.offset) return
+
+    let res = string.slice(node.position.start.offset, node.position.end.offset)
+    res = res.replaceAll('<', '&lt;')
+    res = res.replaceAll('\\{', '&#123;')
+
+    s.update(node.position.start.offset, node.position.end.offset, res)
+  })
+
+  let res = s.toString()
+  return { string: res, placeholders }
+}

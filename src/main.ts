@@ -87,52 +87,28 @@ function md_to_html_str(string: string) {
   return res
 }
 
-async function preprocess(string: string) {
+function preprocess(string: string) {
+  let result = ''
   let placeholders: string[] = []
 
-  let s = new MagicString(string)
   let mdast = fromMarkdown(string)
+  let mdast_str = new MagicString(string)
 
-  visit(mdast, 'inlineCode', (node) => {
+  visit(mdast, ['code', 'inlineCode'], (node) => {
     if (!node.position?.start.offset || !node.position?.end.offset) return
-
-    // this feels safer than shifting indexes
-    let res = '`' + escapeSvelte(node.value) + '`'
-    s.update(node.position.start.offset, node.position.end.offset, res)
+    let code = string.slice(
+      node.position.start.offset,
+      node.position.end.offset
+    )
+    let id = `+#SVMD${placeholders.length};`
+    placeholders.push(code)
+    mdast_str.update(node.position.start.offset, node.position.end.offset, id)
   })
 
-  let code: Code[] = []
-  visit(mdast, 'code', (node) => {
-    code.push(node)
-  })
+  string = mdast_str.toString()
 
-  async function processCode(node: Code) {
-    if (!node.position?.start.offset || !node.position?.end.offset) return
-
-    let res = await codeToHtml(node.value, {
-      theme: 'dark-plus',
-      ...(plugin.code?.shiki_options || {}),
-      lang: node.lang || 'text',
-    })
-
-    // res = escapeSvelte(res)
-    res = res.replaceAll('{', '&#123;')
-
-    // placehold this one so it doesn't get parsed as markdown
-    // the alternative is to placehold all < and { in code blocks
-    // with a proprietary placeholder, which is not the best
-    let id = `<!--SVMD_${placeholders.length}-->`
-    placeholders.push(res)
-
-    s.update(node.position.start.offset, node.position.end.offset, id)
-  }
-
-  await Promise.all(code.map((c) => processCode(c)))
-
-  string = s.toString()
-  s = new MagicString(string)
   let hast = fromHtml(string, { fragment: true })
-
+  let hast_str = new MagicString(string)
   let skip_nodes = ['script', 'style']
 
   visit(hast, 'text', (node, index, parent) => {
@@ -143,16 +119,36 @@ async function preprocess(string: string) {
     )
       return
     if (!node.position?.start.offset || !node.position?.end.offset) return
+    if (node.value.length <= 2) return
 
-    let res = string.slice(node.position.start.offset, node.position.end.offset)
-    res = res.replaceAll('<', '&lt;')
-    res = res.replaceAll('\\{', '&#123;')
+    let value = node.value
+    value = value.replaceAll('<', '&lt;')
+    value = value.replaceAll('\\{', '&#123;')
 
-    s.update(node.position.start.offset, node.position.end.offset, res)
+    // let mdast = fromMarkdown(value)
+    // let mdast_str = new MagicString(value)
+
+    // visit(mdast, ['code', 'inlineCode'], (node) => {
+    //   if (!node.position?.start.offset || !node.position?.end.offset) return
+    //   let code = value.slice(
+    //     node.position.start.offset,
+    //     node.position.end.offset
+    //   )
+    //   let id = `+#SVMD${placeholders.length};`
+    //   placeholders.push(code)
+    //   mdast_str.update(node.position.start.offset, node.position.end.offset, id)
+    // })
+
+    // hast_str.update(
+    //   node.position.start.offset,
+    //   node.position.end.offset,
+    //   mdast_str.toString()
+    // )
   })
 
-  let res = s.toString()
-  return { string: res, placeholders }
+  result = hast_str.toString()
+
+  return { result, placeholders }
 }
 
 async function parse_svm(md_file: string, filename: string) {
@@ -162,8 +158,10 @@ async function parse_svm(md_file: string, filename: string) {
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
 
-  let { string, placeholders } = await preprocess(content)
-  content = string
+  let { result, placeholders } = preprocess(content)
+  console.log('PREPROCESS RES')
+  console.log(result)
+  content = result
 
   let res = ''
 
@@ -179,10 +177,14 @@ async function parse_svm(md_file: string, filename: string) {
         // @ts-ignore
         let raw = node.data
 
-        raw = raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n')
+        // todo create regex from string to allow custom entity
+        raw = raw.replaceAll(/\+#SVMD(\d+);/g, (_: string, id: string) => {
+          return placeholders[Number(id)] ?? ''
+        })
 
-        let inline = !raw.includes('\n\n')
-        // let inline = false
+        let inline_test = raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n')
+        let inline = !inline_test.includes('\n\n')
+
         let res = ''
         if (inline) {
           let start_len = raw.length - raw.trimStart().length
@@ -284,10 +286,6 @@ async function parse_svm(md_file: string, filename: string) {
   if (svast.css) {
     res += extract(svast.css)
   }
-
-  placeholders.forEach((block, i) => {
-    res = res.replace(`<!--SVMD_${i}-->`, block)
-  })
 
   return {
     code: res,

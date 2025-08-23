@@ -220,3 +220,6 @@ Cons
 ## Placeholders
 
 I think comment placeholders have a subtle issue - they are parsed into svast. Therefore markdown will not access them, thus why code in blockquotes fails. Might be better to use custom escape sequence?
+
+Third option: we can keep doing the preprocess thing. However, instead of using node value, use the actual string indexes and slice it. This preserves block quote stuff for example. Basically we can use the entity for the whole block instead of individual characters. This may stress magic-string less and also reduce the number of replaces/entities resulting. Then just restore them before md parse.
+- in sum: entities are not just characters, they can also stand for whole sections of the text that need escaping entirely. This moves code block parsing to the actual parser however (not that thats a bad thing)
