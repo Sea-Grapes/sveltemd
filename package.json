@@ -43,12 +43,12 @@
     "stringify-entities": "^4.0.4",
     "svelte": "^5.38.1",
     "tinyglobby": "^0.2.14",
-    "tsdown": "latest",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
     "@sveltejs/kit": "^2.31.1",
+    "tsdown": "latest",
     "vite": "^7.1.2"
   }
 }

@@ -74,9 +74,6 @@ importers:
       tinyglobby:
         specifier: ^0.2.14
         version: 0.2.14
-      tsdown:
-        specifier: latest
-        version: 0.14.1
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -87,6 +84,9 @@ importers:
       '@sveltejs/kit':
         specifier: ^2.31.1
         version: 2.31.1(@sveltejs/vite-plugin-svelte@6.1.2(svelte@5.38.1)(vite@7.1.2(@types/node@24.3.0)(jiti@2.5.1)))(svelte@5.38.1)(vite@7.1.2(@types/node@24.3.0)(jiti@2.5.1))
+      tsdown:
+        specifier: latest
+        version: 0.14.1
       vite:
         specifier: ^7.1.2
         version: 7.1.2(@types/node@24.3.0)(jiti@2.5.1)
