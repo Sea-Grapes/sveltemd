@@ -216,3 +216,7 @@ Cons
 
 3. The golden ideal (impossible I think)
 - ideally if we somehow knew exactly where svelte blocks containing `{` were, we could escape every other `{`, thus not needing any custom escaping logic. Unfortunately the only 100% true way to identify logic blocks is with the svelte parser, which we need to escape *before*. We can't use the svelte parser to escape before the svelte parser. Perhaps there is a genius way to solve this but I can't think of any.
+
+## Placeholders
+
+I think comment placeholders have a subtle issue - they are parsed into svast. Therefore markdown will not access them, thus why code in blockquotes fails. Might be better to use custom escape sequence?

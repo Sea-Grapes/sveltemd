@@ -96,7 +96,8 @@ async function preprocess(string: string) {
   visit(mdast, 'inlineCode', (node) => {
     if (!node.position?.start.offset || !node.position?.end.offset) return
 
-    let res = escapeSvelte(node.value)
+    // this feels safer than shifting indexes
+    let res = '`' + escapeSvelte(node.value) + '`'
     s.update(node.position.start.offset, node.position.end.offset, res)
   })
 

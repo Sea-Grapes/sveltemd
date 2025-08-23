@@ -38,6 +38,12 @@
     @apply px-5 py-4 rounded-md text-sm;
   }
 
+  :not(pre) code {
+    font-size: 14px;
+    padding: 3px 6px;
+    @apply bg-zinc-100 rounded-sm;
+  }
+
   .shiki {
     @apply bg-zinc-100! overflow-x-auto;
   }
