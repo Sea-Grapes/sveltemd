@@ -38,9 +38,18 @@
     @apply px-5 py-4 rounded-md text-sm bg-zinc-100! overflow-x-auto;
   }
 
-  :not(pre) code {
+  code:not(pre > code) {
     font-size: 14px;
     padding: 3px 6px;
     @apply bg-zinc-100 rounded-sm;
+  }
+
+  ul,
+  ol {
+    @apply pl-[3ch] space-y-1 marker:text-zinc-500;
+  }
+
+  ol {
+    @apply list-decimal;
   }
 }

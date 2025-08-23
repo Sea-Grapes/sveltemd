@@ -87,8 +87,8 @@ function remarkShiki() {
       })
       // @ts-ignore
       node.type = 'html'
+      node.value = node.value.replaceAll('{', '&#123;')
     }
-    node.value = node.value.replaceAll('{', '&#123;')
   }
 
   return async function (tree: Root) {
