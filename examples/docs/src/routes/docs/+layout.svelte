@@ -37,14 +37,16 @@
       <ISvelte />
       Sveltemd</a
     >
-    <div class="space-y-2 py-4 px-2 text-[15px]">
+    <div class="py-4 px-2 text-[15px] space-y-8">
       {#each Object.entries(tree) as [group, posts]}
-        <div>
-          <h1 class="font-medium cursor-pointer">{group}</h1>
+        <div class="py-4 border-t border-zinc-300 first:py-0 first:border-none">
+          <div>
+            <h1 class="font-medium cursor-pointer pb-1">{group}</h1>
+          </div>
+          {#each posts as post}
+            <a class="block py-1" href={post.url}>{post.title}</a>
+          {/each}
         </div>
-        {#each posts as post}
-          <a class="block" href={post.url}>{post.title}</a>
-        {/each}
       {/each}
     </div>
   </div>

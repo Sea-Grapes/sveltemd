@@ -186,8 +186,6 @@ async function parse_svm(md_file: string, filename: string) {
   // content = content.trim()
 
   let { result, placeholders } = preprocess(content)
-  console.log('PREPROCESS RES')
-  console.log(result)
   content = result
 
   let res = ''
