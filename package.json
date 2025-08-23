@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "build:vercel": "pnpm dlx tsdown",
+    "build:vercel": "tsdown",
     "dev": "tsdown --watch"
   },
   "dependencies": {
