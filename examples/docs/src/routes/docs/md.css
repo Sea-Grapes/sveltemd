@@ -53,4 +53,8 @@
   ol {
     @apply list-decimal;
   }
+
+  ul {
+    @apply list-disc marker:text-zinc-400;
+  }
 }

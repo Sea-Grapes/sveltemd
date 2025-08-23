@@ -121,6 +121,7 @@ function preprocess(string: string) {
   let mdast = fromMarkdown(string)
   let mdast_str = new MagicString(string)
 
+  // Todo: check if actually contains invalid chars
   visit(mdast, ['code', 'inlineCode'], (node) => {
     if (!node.position?.start.offset || !node.position?.end.offset) return
     let code = string.slice(
@@ -138,6 +139,9 @@ function preprocess(string: string) {
   let hast_str = new MagicString(string)
   let skip_nodes = ['script', 'style']
 
+  console.log('HAST:')
+  console.log(hast)
+
   visit(hast, 'text', (node, index, parent) => {
     if (
       parent &&
@@ -151,6 +155,8 @@ function preprocess(string: string) {
     let value = node.value
     value = value.replaceAll('<', '&lt;')
     value = value.replaceAll('\\{', '&#123;')
+
+    hast_str.update(node.position.start.offset, node.position.end.offset, value)
 
     // let mdast = fromMarkdown(value)
     // let mdast_str = new MagicString(value)
@@ -187,6 +193,9 @@ async function parse_svm(md_file: string, filename: string) {
 
   let { result, placeholders } = preprocess(content)
   content = result
+
+  console.log('PREPROCESS RESULT:')
+  console.log(content)
 
   let res = ''
 
