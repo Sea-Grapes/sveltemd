@@ -89,6 +89,8 @@ function md_to_html_str(string: string) {
 }
 
 async function preprocess(string: string) {
+  let placeholders: string[] = []
+
   let s = new MagicString(string)
   let mdast = fromMarkdown(string)
 
@@ -100,7 +102,11 @@ async function preprocess(string: string) {
   })
 
   let code: Code[] = []
-  visit(mdast, 'code', (node) => code.push(node))
+  visit(mdast, 'code', (node) => {
+    console.log('VISIT CODE')
+    console.log(code)
+    code.push(node)
+  })
 
   async function processCode(node: Code) {
     if (!node.position?.start.offset || !node.position?.end.offset) return
@@ -111,9 +117,16 @@ async function preprocess(string: string) {
       lang: node.lang || 'text',
     })
 
-    res = escapeSvelte(res)
+    // res = escapeSvelte(res)
+    res = res.replaceAll('{', '&#123;')
 
-    s.update(node.position.start.offset, node.position.end.offset, res)
+    // placehold this one so it doesn't get parsed as markdown
+    // the alternative is to placehold all < and { in code blocks
+    // with a proprietary placeholder, which is not the best
+    let id = `<!--SVMD_${placeholders.length}-->`
+    placeholders.push(res)
+
+    s.update(node.position.start.offset, node.position.end.offset, id)
   }
 
   await Promise.all(code.map((c) => processCode(c)))
@@ -136,7 +149,7 @@ async function preprocess(string: string) {
   })
 
   let res = s.toString()
-  return res
+  return { string: res, placeholders }
 }
 
 async function parse_svm(md_file: string, filename: string) {
@@ -146,13 +159,17 @@ async function parse_svm(md_file: string, filename: string) {
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
 
-  content = await preprocess(content)
+  let { string, placeholders } = await preprocess(content)
+  console.log('PREPROCESS')
+  console.log(string)
+
+  content = string
 
   let res = ''
 
   const svast = parse(content, { modern: true })
 
-  const s = new MagicString(content)
+  let s = new MagicString(content)
 
   // @ts-ignore
   walk(svast, {
@@ -267,6 +284,10 @@ async function parse_svm(md_file: string, filename: string) {
   if (svast.css) {
     res += extract(svast.css)
   }
+
+  placeholders.forEach((block, i) => {
+    res = res.replace(`<!--SVMD_${i}-->`, block)
+  })
 
   return {
     code: res,
