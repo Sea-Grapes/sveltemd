@@ -216,6 +216,7 @@ async function parse_svm(md_file: string, filename: string) {
           return placeholders[Number(id)] ?? ''
         })
 
+        // this should be trimmed first I think.
         let inline_test = raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n')
         let inline = !inline_test.includes('\n\n')
 

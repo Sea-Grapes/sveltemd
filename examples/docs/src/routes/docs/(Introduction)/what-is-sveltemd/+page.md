@@ -15,7 +15,9 @@ You can mix markdown and svelte very tightly. Here is an example:
   let count = $state(0)
 </script>
 
-# Example page This is a test sveltemd page.
+# Example page
+
+This is a test sveltemd page.
 
 <button>**Clicked** {count} _times_</button>
 <Comp />

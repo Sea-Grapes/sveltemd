@@ -19,4 +19,3 @@ The builtin preprocess uses `hast-util-from-html` and `mdast-util-from-markdown`
 
 1. First, `hast-util-from-html` parses your raw content into an html AST. Any `<` symbols leftover in text are thus not valid html
 
-<
