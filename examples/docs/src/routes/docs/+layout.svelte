@@ -51,7 +51,7 @@
 </aside>
 
 <div class="flex lg:pl-[max(var(--sidebar-min),calc(50vw-(var(--article-max)/2)))] min-h-screen">
-  <div class="grow mx-auto px-1-6 py-12 max-w-[var(--article-max)]">
+  <div class="grow mx-auto px-1-6 py-12 min-w-0 max-w-[var(--article-max)]">
     {@render children?.()}
   </div>
   <aside class="hidden xl:block"></aside>

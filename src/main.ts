@@ -103,8 +103,6 @@ async function preprocess(string: string) {
 
   let code: Code[] = []
   visit(mdast, 'code', (node) => {
-    console.log('VISIT CODE')
-    console.log(code)
     code.push(node)
   })
 
@@ -138,10 +136,7 @@ async function preprocess(string: string) {
   visit(hast, 'text', (node) => {
     if (!node.position?.start.offset || !node.position?.end.offset) return
 
-    // Todo: can original string be used here instead of magic?
     let res = string.slice(node.position.start.offset, node.position.end.offset)
-
-    // res = escapeSvelte(res)
     res = res.replaceAll('<', '&lt;')
     res = res.replaceAll('\\{', '&#123;')
 
@@ -160,9 +155,6 @@ async function parse_svm(md_file: string, filename: string) {
   // content = content.trim()
 
   let { string, placeholders } = await preprocess(content)
-  console.log('PREPROCESS')
-  console.log(string)
-
   content = string
 
   let res = ''

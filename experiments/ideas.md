@@ -186,3 +186,9 @@ I just realized there can be a "preprocess" phase that the user can customize. T
 - Code blocks are processed here and converted to html.
 - This can allow the user to do "impossible" things, like having latex directly in markdown.
 - Added side-benefits of synchronus svast walking, no custom escaping
+
+# Preprocess before or after (Just escaping or more than that)?
+
+Currently preprocessor runs before everything, but it also handles code blocks. The idea was to parse everything that breaks svelte first (including code blocks). The downside is this requires placeholders (html comments). This could have unintended consequences.
+- The alternative solution is to use custom escape sequences, like `+#SVMD0;` perhaps. These would only need to escape invalid `<` and `{` characters, and then escaping preprocess would only be responsible for strictly escaping. Then they could be replaced after (before md parsing). This *may* be good I cannot tell.
+- Cons: The obvious downside is that users cannot type that escape sequence anymore, but why would they need to? It also means more placeholders instead of just a few comments. It also means magic-string will have a lot of replace/replaceAll to do (but maybe its intended for this?) The pros are it unifies the md parsing again. This may be very good for custom markdown components though.

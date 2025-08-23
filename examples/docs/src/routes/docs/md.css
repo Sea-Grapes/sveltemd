@@ -39,6 +39,6 @@
   }
 
   .shiki {
-    @apply bg-zinc-100!;
+    @apply bg-zinc-100! overflow-x-auto;
   }
 }

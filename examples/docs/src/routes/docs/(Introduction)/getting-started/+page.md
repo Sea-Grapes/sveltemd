@@ -25,3 +25,7 @@ const config = {
   preprocess: [vitePreprocess(), markdown()]
 }
 ```
+
+> ```js
+> console.log('test')
+> ```
