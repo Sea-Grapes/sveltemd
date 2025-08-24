@@ -208,7 +208,7 @@ async function parse_svm(md_file: string, filename: string) {
 
   let s = new MagicString(content)
 
-  processSvast(svast, content, s)
+  processSvast(svast.fragment, content, s)
 
   // placeholders.forEach((content, i) => {
   //   markdown = markdown.replace(`+#SVMD${i};`, content)
