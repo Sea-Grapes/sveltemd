@@ -139,8 +139,8 @@ function preprocess(string: string) {
   let hast_str = new MagicString(string)
   let skip_nodes = ['script', 'style']
 
-  console.log('HAST:')
-  console.log(hast)
+  // console.log('HAST:')
+  // console.log(hast)
 
   visit(hast, 'text', (node, index, parent) => {
     if (
@@ -194,57 +194,81 @@ async function parse_svm(md_file: string, filename: string) {
   let { result, placeholders } = preprocess(content)
   content = result
 
-  console.log('PREPROCESS RESULT:')
-  console.log(content)
+  // console.log('PREPROCESS RESULT:')
+  // console.log(content)
 
   let res = ''
 
   const svast = parse(content, { modern: true })
 
+  console.log('SVAST:')
+  console.log(JSON.stringify(svast.fragment, null, 2))
+
   let s = new MagicString(content)
 
+  let markdown_nodes: any[] = []
+  let markdown = ''
+
   // @ts-ignore
-  await asyncWalk(svast, {
-    async enter(node, parent, key, index) {
+  walk(svast, {
+    enter(node, parent, key, index) {
       // @ts-ignore
       if (node.type === 'Text' && parent.type === 'Fragment') {
         // @ts-ignore
         let raw = node.data
 
-        // todo create regex from string to allow custom entity
-        raw = raw.replaceAll(/\+#SVMD(\d+);/g, (_: string, id: string) => {
-          return placeholders[Number(id)] ?? ''
-        })
+        if (!raw.trim().length) return
 
         // this should be trimmed first I think.
         let inline_test = raw.replaceAll('\r\n', '\n').replaceAll('\r', '\n')
         let inline = !inline_test.includes('\n\n')
-
-        let res = ''
-        if (inline) {
-          let start_len = raw.length - raw.trimStart().length
-          let end_len = raw.length - raw.trimEnd().length
-
-          let start_ws = raw.slice(0, start_len)
-          let middle = raw.slice(start_len, raw.length - end_len)
-          let end_ws = raw.slice(raw.length - end_len)
-
-          let tmp = await md_to_html_str(middle)
-
-          // if (tmp.startsWith('<p>')) tmp = tmp.slice(3)
-          // if (tmp.endsWith('</p>')) tmp = tmp.slice(0, -4)
-          if (tmp.startsWith('<p>') && tmp.endsWith('</p>')) {
-            tmp = tmp.slice(3, -4)
-          }
-
-          res = start_ws + tmp + end_ws
-        } else {
-          res = await md_to_html_str(raw)
-        }
         // @ts-ignore
-        s.update(node.start, node.end, res)
+        markdown_nodes.push({ start: node.start, end: node.end, inline, raw })
+        markdown += raw
+        markdown += '\n<!--&#SVMD_BREAK;-->\n'
       }
     },
+  })
+
+  placeholders.forEach((content, i) => {
+    markdown = markdown.replace(`+#SVMD${i};`, content)
+  })
+  markdown = await md_to_html_str(markdown)
+
+  console.log('MARKDOWN TMP:')
+  console.log(markdown)
+  // markdown = markdown.replaceAll(/\+#SVMD(\d+);/g, (_: string, id: string) => {
+  //   return placeholders[Number(id)] ?? ''
+  // })
+  let markdown_chunks = markdown.split('<!--&#SVMD_BREAK;-->')
+  console.log(markdown_chunks.length)
+  console.log(markdown_nodes.length)
+
+  markdown_nodes.forEach((node, i) => {
+    // Todo: better err handling
+    if (markdown_chunks?.[i] === undefined) throw new Error('Invalid markdown')
+    let chunk = markdown_chunks[i]
+    // todo create regex from string to allow custom entity
+
+    if (node.inline) {
+      let start_len = node.raw.length - node.raw.trimStart().length
+      let end_len = node.raw.length - node.raw.trimEnd().length
+
+      let start_ws = node.raw.slice(0, start_len)
+      let middle = node.raw.slice(start_len, node.raw.length - end_len)
+      let end_ws = node.raw.slice(node.raw.length - end_len)
+
+      // if (tmp.startsWith('<p>')) tmp = tmp.slice(3)
+      // if (tmp.endsWith('</p>')) tmp = tmp.slice(0, -4)
+      if (chunk.startsWith('<p>') && chunk.endsWith('</p>')) {
+        chunk = chunk.slice(3, -4)
+      }
+
+      chunk = start_ws + chunk + end_ws
+    }
+
+    // @ts-ignore
+    s.update(node.start, node.end, chunk)
   })
 
   const extract = (section: any): string => {
