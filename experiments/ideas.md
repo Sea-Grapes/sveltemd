@@ -223,3 +223,9 @@ I think comment placeholders have a subtle issue - they are parsed into svast. T
 
 Third option: we can keep doing the preprocess thing. However, instead of using node value, use the actual string indexes and slice it. This preserves block quote stuff for example. Basically we can use the entity for the whole block instead of individual characters. This may stress magic-string less and also reduce the number of replaces/entities resulting. Then just restore them before md parse.
 - in sum: entities are not just characters, they can also stand for whole sections of the text that need escaping entirely. This moves code block parsing to the actual parser however (not that thats a bad thing)
+
+
+# New parser idea! (v3?)
+
+Simply: first use strategies (mdast, hast) to escape for svelte parse. Then use svelte parse to escape for markdown! done!
+- svelte parse can be used to escape things that break markdown. Logic blocks, value interpolations {}, attributes with js like onclick. We simply have to generate a placeholder that markdown ignores, then restore it after.
