@@ -16,7 +16,7 @@ export function escapeSvast(svast: AST.Fragment, content: string) {
   // @ts-ignore
   walk(svast, {
     enter(node: any, parent: any, key, index) {
-      console.log(node)
+      // console.log(node)
       if (node.type === 'Fragment') return
 
       switch (node.type) {
@@ -50,8 +50,10 @@ export function restoreSvast(
       transformed.slice(0, index) + string + transformed.slice(index)
   }
 
-  indexes.forEach((index) => {
-    
+  indexes.forEach((index, i) => {
+    let content = placeholders[index.old]
+    if(!content) return
+    insert(index.new, content)
   })
 
   return transformed

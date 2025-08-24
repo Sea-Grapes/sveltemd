@@ -204,91 +204,97 @@ async function parse_svm(md_file: string, filename: string) {
   // store placeholders as { index, value }
   let pre_md = escapeSvast(svast.fragment, content)
 
-  content = await md_to_html_str(pre_md.content)
+  console.log('PRE MD: ILLEGAL SVELTE REMOVED')
+  console.log(pre_md.content)
+
+  let markdown = await md_to_html_str(pre_md.content)
 
   // restore placeholders - helper function takes in whole placeholders object.
   // transforms all placeholder indexes to their positions after md parsing.
-  content = restoreSvast(pre_md.placeholders, content)
+  content = restoreSvast(pre_md.placeholders, content, markdown)
 
-  let res = ''
+  console.log('MD PROCESSED + SVELTE RESTORED:')
+  console.log(content)
 
-  const extract = (section: any): string => {
-    if (!section || section.start == section.end) return ''
-    return content.slice(section.start, section.end)
-  }
+  // let res = ''
 
-  if (data && plugin.frontmatter) data = plugin.frontmatter(data)
+  // const extract = (section: any): string => {
+  //   if (!section || section.start == section.end) return ''
+  //   return content.slice(section.start, section.end)
+  // }
 
-  if (svast.module) {
-    let module = extract(svast.module)
-    let content = extract(svast.module.content)
+  // if (data && plugin.frontmatter) data = plugin.frontmatter(data)
 
-    let meta = data
-      ? `\n  export const metadata = ${JSON.stringify(data)};\n`
-      : ''
-    let content_2 = meta + content
+  // if (svast.module) {
+  //   let module = extract(svast.module)
+  //   let content = extract(svast.module.content)
 
-    res += module.replace(content, content_2)
-  } else if (data) {
-    let meta = `\n  export const metadata = ${JSON.stringify(data)};\n`
-    res += `<script module>${meta}</script>\n`
-  }
+  //   let meta = data
+  //     ? `\n  export const metadata = ${JSON.stringify(data)};\n`
+  //     : ''
+  //   let content_2 = meta + content
 
-  let layouts = get_layout_paths(filename)
+  //   res += module.replace(content, content_2)
+  // } else if (data) {
+  //   let meta = `\n  export const metadata = ${JSON.stringify(data)};\n`
+  //   res += `<script module>${meta}</script>\n`
+  // }
 
-  if (svast.instance) {
-    let instance = extract(svast.instance)
-    let content = extract(svast.instance?.content)
+  // let layouts = get_layout_paths(filename)
 
-    if (layouts.length) {
-      let imports =
-        '\n' +
-        layouts
-          .map((path, i) => `  import SVELTEMD_LAYOUT_${i} from '${path}'`)
-          .join('\n') +
-        '\n'
+  // if (svast.instance) {
+  //   let instance = extract(svast.instance)
+  //   let content = extract(svast.instance?.content)
 
-      instance = instance.replace(content, imports + content)
-    }
+  //   if (layouts.length) {
+  //     let imports =
+  //       '\n' +
+  //       layouts
+  //         .map((path, i) => `  import SVELTEMD_LAYOUT_${i} from '${path}'`)
+  //         .join('\n') +
+  //       '\n'
 
-    res += instance
-  } else if (layouts.length) {
-    let imports =
-      '\n<script>\n' +
-      layouts
-        .map((path, i) => `  import SVELTEMD_LAYOUT_${i} from '${path}'`)
-        .join('\n') +
-      '\n</script>\n'
-    res += imports
-  }
+  //     instance = instance.replace(content, imports + content)
+  //   }
 
-  if (svast.fragment) {
-    let save: string[] = []
+  //   res += instance
+  // } else if (layouts.length) {
+  //   let imports =
+  //     '\n<script>\n' +
+  //     layouts
+  //       .map((path, i) => `  import SVELTEMD_LAYOUT_${i} from '${path}'`)
+  //       .join('\n') +
+  //     '\n</script>\n'
+  //   res += imports
+  // }
 
-    let html = svast.fragment.nodes
-      .map((node) => {
-        let text = content.slice(node.start, node.end)
-        return text
-      })
-      .join('')
+  // if (svast.fragment) {
+  //   let save: string[] = []
 
-    if (layouts.length) {
-      html = layouts.reduce((content, layout, i) => {
-        return `<SVELTEMD_LAYOUT_${i} ${
-          has_data ? '{...metadata}' : ''
-        }>\n${content}\n</SVELTEMD_LAYOUT_${i}>`
-      }, html)
-    }
+  //   let html = svast.fragment.nodes
+  //     .map((node) => {
+  //       let text = content.slice(node.start, node.end)
+  //       return text
+  //     })
+  //     .join('')
 
-    res += '\n' + html + '\n'
-  }
+  //   if (layouts.length) {
+  //     html = layouts.reduce((content, layout, i) => {
+  //       return `<SVELTEMD_LAYOUT_${i} ${
+  //         has_data ? '{...metadata}' : ''
+  //       }>\n${content}\n</SVELTEMD_LAYOUT_${i}>`
+  //     }, html)
+  //   }
 
-  if (svast.css) {
-    res += extract(svast.css)
-  }
+  //   res += '\n' + html + '\n'
+  // }
+
+  // if (svast.css) {
+  //   res += extract(svast.css)
+  // }
 
   return {
-    code: res,
+    code: content,
   }
 }
 

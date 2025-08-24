@@ -18,7 +18,7 @@
 
   for (const group in tree) {
     tree[group].sort(
-      (a, b) => (a.index ?? Infinity) - (b.index ?? Infinity) || a.title.localeCompare(b.title)
+      (a, b) => (a.index ?? Infinity) - (b.index ?? Infinity) || a.title?.localeCompare(b.title)
     )
   }
 
