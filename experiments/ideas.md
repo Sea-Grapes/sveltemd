@@ -229,3 +229,15 @@ Third option: we can keep doing the preprocess thing. However, instead of using 
 
 Simply: first use strategies (mdast, hast) to escape for svelte parse. Then use svelte parse to escape for markdown! done!
 - svelte parse can be used to escape things that break markdown. Logic blocks, value interpolations {}, attributes with js like onclick. We simply have to generate a placeholder that markdown ignores, then restore it after.
+
+
+# Avoiding placeholders
+
+- content-specific placeholders kind of suck and are hacky
+  - For preprocess: perhaps we can fix this with magic strings/indexes? Instead of placeholders, simply cut out content and store the index. Then parse with svast, now we have indexes of document with stuff cut out. Now restore the content, but somehow update the indexes.
+  - magic string might actually work here I can't tell. Like 
+
+say we take in a mixed svelte/markdown file. We locate code blocks and illegal < with hast/mdast. We cut those out, store their starting position in the original string. Then svast runs and it gets indexes of all the svelte nodes. Now we want to put back the content. But this makes the svast indexes wrong. But we don't want to update all the svast indexes that would be too slow. So maybe when using the svast and going to specific nodes, we check all the inserted content that comes before its index and add their lengths to the svast index. Actually instead we could use a magic string to insert the cut content. Then we can still access the original string using svast indexes. That works!
+- alternatively we could replace illegal content with whitespace of the same length. Theoretically this would be ok as svast will not change content - though it might cause issues, not sure about the safety of this.
+
+- For markdown placeholders - we don't even need magic string! simply cut out strings and store indexes beforehand. then do a string diff, and update each index based on each diff. Now the indexes are correct!

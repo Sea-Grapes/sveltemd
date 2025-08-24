@@ -3,7 +3,7 @@ title: what is sveltemd?
 index: 0
 ---
 
-<button onclick={() => {console.log('test')}}></button>
+<button onclick={() => {console.log('test')}} class="test"></button>
 
 {#if true}
   this is a test
