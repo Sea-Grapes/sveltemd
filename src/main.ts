@@ -1,4 +1,3 @@
-import { asyncWalk, walk } from 'estree-walker'
 import matter from 'gray-matter'
 import { fromHtml } from 'hast-util-from-html'
 import MagicString from 'magic-string'
@@ -10,11 +9,11 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { codeToHtml } from 'shiki'
 import slash from 'slash'
-import { parse, AST } from 'svelte/compiler'
+import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
 import { visit } from 'unist-util-visit'
-import { processSvast } from './svast'
+import { escapeSvast, restoreSvast } from './svast'
 // import { walk } from 'zimmerframe'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
@@ -116,9 +115,9 @@ async function md_to_html_str(string: string) {
   return res
 }
 
-function preprocess(string: string) {
+function escapeRaw(string: string) {
   let result = ''
-  let placeholders: string[] = []
+  let placeholders: Record<number, string> = {}
 
   let mdast = fromMarkdown(string)
   let mdast_str = new MagicString(string)
@@ -130,9 +129,8 @@ function preprocess(string: string) {
       node.position.start.offset,
       node.position.end.offset
     )
-    let id = `+#SVMD${placeholders.length};`
-    placeholders.push(code)
-    mdast_str.update(node.position.start.offset, node.position.end.offset, id)
+    placeholders[node.position.start.offset] = code
+    mdast_str.remove(node.position.start.offset, node.position.end.offset)
   })
 
   string = mdast_str.toString()
@@ -183,7 +181,7 @@ function preprocess(string: string) {
 
   result = hast_str.toString()
 
-  return { result, placeholders }
+  return { content: result, placeholders }
 }
 
 async function parse_svm(md_file: string, filename: string) {
@@ -193,32 +191,30 @@ async function parse_svm(md_file: string, filename: string) {
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
 
-  let { result, placeholders } = preprocess(content)
-  content = result
-
-  // console.log('PREPROCESS RESULT:')
-  // console.log(content)
-
-  let res = ''
+  let pre_svast = escapeRaw(content)
+  content = pre_svast.content
 
   const svast = parse(content, { modern: true })
-
   console.log('SVAST:')
   console.log(svast)
 
-  let s = new MagicString(content)
+  // content = restoreRaw(pre_svast.placeholders, content)
 
-  processSvast(svast.fragment, content, s)
+  // remove things from content based on svast.
+  // store placeholders as { index, value }
+  let pre_md = escapeSvast(svast.fragment, content)
 
-  // placeholders.forEach((content, i) => {
-  //   markdown = markdown.replace(`+#SVMD${i};`, content)
-  // })
-  let tmp = s.toString()
-  content = await md_to_html_str(tmp)
+  content = await md_to_html_str(pre_md.content)
+
+  // restore placeholders - helper function takes in whole placeholders object.
+  // transforms all placeholder indexes to their positions after md parsing.
+  content = restoreSvast(pre_md.placeholders, content)
+
+  let res = ''
 
   const extract = (section: any): string => {
     if (!section || section.start == section.end) return ''
-    return s.slice(section.start, section.end)
+    return content.slice(section.start, section.end)
   }
 
   if (data && plugin.frontmatter) data = plugin.frontmatter(data)
@@ -271,7 +267,7 @@ async function parse_svm(md_file: string, filename: string) {
 
     let html = svast.fragment.nodes
       .map((node) => {
-        let text = s.slice(node.start, node.end)
+        let text = content.slice(node.start, node.end)
         return text
       })
       .join('')

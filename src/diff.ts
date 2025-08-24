@@ -6,11 +6,11 @@ import diff from 'fast-diff'
 // markdown parsing, and restore it in the correct place afterwards.
 
 // temp naive approach O(n^2)
-function locateIndexes(
+export function locateIndexes(
   original: string,
   transformed: string,
   indexes: number[]
-) {
+): number[] {
   const changes = diff(original, transformed)
 
   // pos in original/transformed strings
