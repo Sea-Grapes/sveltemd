@@ -241,3 +241,23 @@ say we take in a mixed svelte/markdown file. We locate code blocks and illegal <
 - alternatively we could replace illegal content with whitespace of the same length. Theoretically this would be ok as svast will not change content - though it might cause issues, not sure about the safety of this.
 
 - For markdown placeholders - we don't even need magic string! simply cut out strings and store indexes beforehand. then do a string diff, and update each index based on each diff. Now the indexes are correct!
+
+
+## Diffing/Cutting algorithm
+
+- current version is O(n^2), we can do much better.
+- firstly, sort the input values first, ascending order. Then get the first item. iterate the diffs until its the current one. Process it. Check the next, etc. This ver. is probably like O(nlog(n)) (sort) + O(n+m) (myers diff) + O(n) (my iteration).
+
+unrelated - also might be wise to replace {#logic} blocks with actual html substitute (custom element) to benefit from inline markdown. This would need storing start/end index or perhaps start/length. We only have to find where the index goes though, since the length stays the same and can be replaced.
+
+perhaps we should invest in constructing a custom string for markdown. Like basically stringify the svast, but only the bits that are safe. Or perhaps this is too hard to do.
+
+Like we could potentially visit all Text, RegularElement, and SvelteElement nodes, then combine them - eh maybe not idk.
+
+# New plan perhaps?
+
+1. escape raw text
+2. parse svast
+3. restore escaped
+4. Parse each text/html svast node individually, but at the same time. combine svast text/html into a fake markdown doc (markdown only cares about text and html afaik). Either use html comment seperators or store indexes. Also remove any svelte things from html elements.
+5. restore each text node into the svelte text. Perhaps a good way to do this is when slicing out html and text nodes, get the other parts that its being sliced out of. Then you can simply add them together as text. Perhaps this could be applied in other places too to avoid diffing/magic-string/indexing.
