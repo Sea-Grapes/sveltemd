@@ -27,3 +27,4 @@ Code blocks
 Maybe
 
 - [ ] global custom components via config
+- [ ] preprocess caching for `import.meta.glob` (or maybe not)

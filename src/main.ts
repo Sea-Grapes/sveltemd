@@ -117,15 +117,8 @@ async function md_to_html_str(string: string) {
 
 function preprocess(string: string) {
   let result = ''
+  let mdast_str = new MagicString(string)
   let placeholders: Record<number, string> = {}
-
-  const escape = (index: number, stringToRemove: string) => {
-    if (stringToRemove.length === 0) return
-    let left = string.slice(0, index)
-    let right = string.slice(index + stringToRemove.length, string.length)
-
-    string = left + ' '.repeat(stringToRemove.length) + right
-  }
 
   let mdast = fromMarkdown(string)
 
@@ -137,8 +130,10 @@ function preprocess(string: string) {
 
     let code = string.slice(start, end)
     placeholders[start] = code
-    escape(start, code)
+    mdast_str.update(start, end, ' '.repeat(code.length))
   })
+
+  string = mdast_str.toString()
 
   let hast = fromHtml(string, { fragment: true })
   let hast_str = new MagicString(string)
@@ -176,15 +171,29 @@ async function parse_svm(md_file: string, filename: string) {
   let pre = preprocess(content)
   content = pre.content
 
+  console.log(content)
+
+  // Todo: combine with above^ ?
   const svast = parse(content, { modern: true })
   console.log('SVAST:')
   console.log(svast)
 
   // Todo: restore placeholders
   // content = restore
+  Object.entries(pre.placeholders).forEach(([index, string]) => {
+    let i = Number(index)
+    let left = content.slice(0, i)
+    let right = content.slice(i + string.length, content.length)
+
+    content = left + string + right
+  })
+
+  console.log(content)
+  let svast_str = new MagicString(content)
 
   interface MdSave {
     start: number
+    end: number
     string: string
   }
 
@@ -193,20 +202,36 @@ async function parse_svm(md_file: string, filename: string) {
   // @ts-ignore
   walk(svast.fragment, {
     enter(node: any, parent: any, key, index) {
-
-      if(node.type === 'text') {
+      if (node.type === 'Text') {
         md_save_parts.push({
           start: node.start,
-          string: node.data
+          end: node.end,
+          string: node.data,
         })
+      } else if (node.type === 'RegularElement') {
       }
-    }
+    },
   })
 
-  let markdown_vfile = md_save_parts.join('SVMD_BRK')
+  let markdown_vfile = md_save_parts
+    .map((save) => save.string)
+    .join('\n<!--SVMD_BRK-->\n')
   let markdown = await md_to_html_str(markdown_vfile)
   // Todo handle any <p> wraps
-  let md_save_results = markdown.split('SVMD_BRK')
+  let md_save_results = markdown.split('<!--SVMD_BRK-->')
+
+  console.log(md_save_parts.length, md_save_results.length)
+
+  md_save_parts.forEach((save, i) => {
+    let result = md_save_results[i]
+    if (result === undefined) {
+      console.warn('Warn: missing result')
+      return
+    }
+    svast_str.update(save.start, save.end, result)
+  })
+
+  content = svast_str.toString()
 
   // let res = ''
 
