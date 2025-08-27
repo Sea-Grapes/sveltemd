@@ -52,7 +52,7 @@ export function restoreSvast(
 
   indexes.forEach((index, i) => {
     let content = placeholders[index.old]
-    if(!content) return
+    if (!content) return
     insert(index.new, content)
   })
 

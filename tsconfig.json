@@ -9,6 +9,11 @@
     "esModuleInterop": true,
     "types": ["vite/client", "@sveltejs/kit"]
   },
-  "include": ["src/**/*", "experiments/svast.d.ts"],
+  "include": [
+    "src/**/*",
+    "experiments/svast.d.ts",
+    "experiments/svast.ts",
+    "experiments/diff.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

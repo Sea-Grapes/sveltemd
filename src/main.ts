@@ -1,3 +1,4 @@
+import { walk } from 'estree-walker'
 import matter from 'gray-matter'
 import { fromHtml } from 'hast-util-from-html'
 import MagicString from 'magic-string'
@@ -13,7 +14,6 @@ import { parse } from 'svelte/compiler'
 import { globSync } from 'tinyglobby'
 import { unified } from 'unified'
 import { visit } from 'unist-util-visit'
-import { escapeSvast, restoreSvast } from './svast'
 // import { walk } from 'zimmerframe'
 
 type Extension = '.md' | '.svelte' | '.svx' | (string & {})
@@ -115,32 +115,34 @@ async function md_to_html_str(string: string) {
   return res
 }
 
-function escapeRaw(string: string) {
+function preprocess(string: string) {
   let result = ''
   let placeholders: Record<number, string> = {}
 
+  const escape = (index: number, stringToRemove: string) => {
+    if (stringToRemove.length === 0) return
+    let left = string.slice(0, index)
+    let right = string.slice(index + stringToRemove.length, string.length)
+
+    string = left + ' '.repeat(stringToRemove.length) + right
+  }
+
   let mdast = fromMarkdown(string)
-  let mdast_str = new MagicString(string)
 
   // Todo: check if actually contains invalid chars
   visit(mdast, ['code', 'inlineCode'], (node) => {
     if (!node.position?.start.offset || !node.position?.end.offset) return
-    let code = string.slice(
-      node.position.start.offset,
-      node.position.end.offset
-    )
-    placeholders[node.position.start.offset] = code
-    mdast_str.remove(node.position.start.offset, node.position.end.offset)
-  })
+    let start = node.position.start.offset,
+      end = node.position.end.offset
 
-  string = mdast_str.toString()
+    let code = string.slice(start, end)
+    placeholders[start] = code
+    escape(start, code)
+  })
 
   let hast = fromHtml(string, { fragment: true })
   let hast_str = new MagicString(string)
   let skip_nodes = ['script', 'style']
-
-  // console.log('HAST:')
-  // console.log(hast)
 
   visit(hast, 'text', (node, index, parent) => {
     if (
@@ -157,26 +159,6 @@ function escapeRaw(string: string) {
     value = value.replaceAll('\\{', '&#123;')
 
     hast_str.update(node.position.start.offset, node.position.end.offset, value)
-
-    // let mdast = fromMarkdown(value)
-    // let mdast_str = new MagicString(value)
-
-    // visit(mdast, ['code', 'inlineCode'], (node) => {
-    //   if (!node.position?.start.offset || !node.position?.end.offset) return
-    //   let code = value.slice(
-    //     node.position.start.offset,
-    //     node.position.end.offset
-    //   )
-    //   let id = `+#SVMD${placeholders.length};`
-    //   placeholders.push(code)
-    //   mdast_str.update(node.position.start.offset, node.position.end.offset, id)
-    // })
-
-    // hast_str.update(
-    //   node.position.start.offset,
-    //   node.position.end.offset,
-    //   mdast_str.toString()
-    // )
   })
 
   result = hast_str.toString()
@@ -191,30 +173,40 @@ async function parse_svm(md_file: string, filename: string) {
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
 
-  let pre_svast = escapeRaw(content)
-  content = pre_svast.content
+  let pre = preprocess(content)
+  content = pre.content
 
   const svast = parse(content, { modern: true })
   console.log('SVAST:')
   console.log(svast)
 
-  // content = restoreRaw(pre_svast.placeholders, content)
+  // Todo: restore placeholders
+  // content = restore
 
-  // remove things from content based on svast.
-  // store placeholders as { index, value }
-  let pre_md = escapeSvast(svast.fragment, content)
+  interface MdSave {
+    start: number
+    string: string
+  }
 
-  console.log('PRE MD: ILLEGAL SVELTE REMOVED')
-  console.log(pre_md.content)
+  let md_save_parts: MdSave[] = []
 
-  let markdown = await md_to_html_str(pre_md.content)
+  // @ts-ignore
+  walk(svast.fragment, {
+    enter(node: any, parent: any, key, index) {
 
-  // restore placeholders - helper function takes in whole placeholders object.
-  // transforms all placeholder indexes to their positions after md parsing.
-  content = restoreSvast(pre_md.placeholders, content, markdown)
+      if(node.type === 'text') {
+        md_save_parts.push({
+          start: node.start,
+          string: node.data
+        })
+      }
+    }
+  })
 
-  console.log('MD PROCESSED + SVELTE RESTORED:')
-  console.log(content)
+  let markdown_vfile = md_save_parts.join('SVMD_BRK')
+  let markdown = await md_to_html_str(markdown_vfile)
+  // Todo handle any <p> wraps
+  let md_save_results = markdown.split('SVMD_BRK')
 
   // let res = ''
 
