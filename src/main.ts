@@ -117,20 +117,21 @@ async function md_to_html_str(string: string) {
 
 function preprocess(string: string) {
   let result = ''
-  let mdast_str = new MagicString(string)
-  let placeholders: Record<number, string> = {}
+  let placeholders: string[] = []
 
   let mdast = fromMarkdown(string)
+  let mdast_str = new MagicString(string)
 
   // Todo: check if actually contains invalid chars
   visit(mdast, ['code', 'inlineCode'], (node) => {
     if (!node.position?.start.offset || !node.position?.end.offset) return
-    let start = node.position.start.offset,
-      end = node.position.end.offset
-
-    let code = string.slice(start, end)
-    placeholders[start] = code
-    mdast_str.update(start, end, ' '.repeat(code.length))
+    let code = string.slice(
+      node.position.start.offset,
+      node.position.end.offset
+    )
+    let id = `+#SVMD${placeholders.length};`
+    placeholders.push(code)
+    mdast_str.update(node.position.start.offset, node.position.end.offset, id)
   })
 
   string = mdast_str.toString()
@@ -138,6 +139,9 @@ function preprocess(string: string) {
   let hast = fromHtml(string, { fragment: true })
   let hast_str = new MagicString(string)
   let skip_nodes = ['script', 'style']
+
+  // console.log('HAST:')
+  // console.log(hast)
 
   visit(hast, 'text', (node, index, parent) => {
     if (
@@ -177,20 +181,9 @@ async function parse_svm(md_file: string, filename: string) {
   const svast = parse(content, { modern: true })
   console.log('SVAST:')
   console.log(svast)
-
-  // Todo: restore placeholders
-  // content = restore
-  Object.entries(pre.placeholders).forEach(([index, string]) => {
-    let i = Number(index)
-    let left = content.slice(0, i)
-    let right = content.slice(i + string.length, content.length)
-
-    content = left + string + right
-  })
-
-  console.log(content)
+  
   let svast_str = new MagicString(content)
-
+  
   interface MdSave {
     start: number
     end: number
@@ -202,7 +195,7 @@ async function parse_svm(md_file: string, filename: string) {
   // @ts-ignore
   walk(svast.fragment, {
     enter(node: any, parent: any, key, index) {
-      if (node.type === 'Text') {
+      if (node.type === 'Text' && parent.type === 'Fragment') {
         md_save_parts.push({
           start: node.start,
           end: node.end,
@@ -213,10 +206,10 @@ async function parse_svm(md_file: string, filename: string) {
     },
   })
 
-  let markdown_vfile = md_save_parts
+  let markdown = md_save_parts
     .map((save) => save.string)
     .join('\n<!--SVMD_BRK-->\n')
-  let markdown = await md_to_html_str(markdown_vfile)
+  markdown = await md_to_html_str(markdown)
   // Todo handle any <p> wraps
   let md_save_results = markdown.split('<!--SVMD_BRK-->')
 
