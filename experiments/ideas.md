@@ -261,3 +261,21 @@ Like we could potentially visit all Text, RegularElement, and SvelteElement node
 3. restore escaped
 4. Parse each text/html svast node individually, but at the same time. combine svast text/html into a fake markdown doc (markdown only cares about text and html afaik). Either use html comment seperators or store indexes. Also remove any svelte things from html elements.
 5. restore each text node into the svelte text. Perhaps a good way to do this is when slicing out html and text nodes, get the other parts that its being sliced out of. Then you can simply add them together as text. Perhaps this could be applied in other places too to avoid diffing/magic-string/indexing.
+
+## Why use this approach (escaping for svete parse) justification
+
+Why should we use this approach rather than the typical approaches, rewriting parsers/creating real ast specs/modding unified?
+
+There's a few good reasons:
+- simple to write and maintain
+- svelte syntax may change, who knows? Probably not that drastically, but still features may be added, such as `{@attach}`
+- svelte logic blocks can be complex, containing typescript or javascript based on internals/project setup stuff I can't access easily. In fact I'm fairly certain mdsvex parses logic blocks incorrectly (though maybe that's being fixed in the next ver., idk)
+
+Downsides
+- probably less performant
+- feels a bit hacky and uses some hacky things
+- probably won't become a "standard" lib, but I'm ok with that
+- manual escaping for `{` and `<` *before* svelte-parse. This could be automatic if svelte things were reliably detectable. (As mentioned above, I don't have a good way to do this.)
+- probably a ton of others I forgot
+
+Misc note - plugin must become a vite plugin to allow enhanced:img. Also helpful for layouts.
