@@ -1,9 +1,5 @@
-import { walk } from 'estree-walker'
 import matter from 'gray-matter'
-import { fromHtml } from 'hast-util-from-html'
-import MagicString from 'magic-string'
 import { Code, InlineCode, Root } from 'mdast'
-import { fromMarkdown } from 'mdast-util-from-markdown'
 import path from 'path'
 import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
@@ -115,55 +111,6 @@ async function md_to_html_str(string: string) {
   return res
 }
 
-function preprocess(string: string) {
-  let result = ''
-  let placeholders: string[] = []
-
-  let mdast = fromMarkdown(string)
-  let mdast_str = new MagicString(string)
-
-  // Todo: check if actually contains invalid chars
-  visit(mdast, ['code', 'inlineCode'], (node) => {
-    if (!node.position?.start.offset || !node.position?.end.offset) return
-    let code = string.slice(
-      node.position.start.offset,
-      node.position.end.offset
-    )
-    let id = `+#SVMD${placeholders.length};`
-    placeholders.push(code)
-    mdast_str.update(node.position.start.offset, node.position.end.offset, id)
-  })
-
-  string = mdast_str.toString()
-
-  let hast = fromHtml(string, { fragment: true })
-  let hast_str = new MagicString(string)
-  let skip_nodes = ['script', 'style']
-
-  // console.log('HAST:')
-  // console.log(hast)
-
-  visit(hast, 'text', (node, index, parent) => {
-    if (
-      parent &&
-      parent.type === 'element' &&
-      skip_nodes.includes(parent.tagName)
-    )
-      return
-    if (!node.position?.start.offset || !node.position?.end.offset) return
-    if (node.value.length <= 2) return
-
-    let value = node.value
-    value = value.replaceAll('<', '&lt;')
-    value = value.replaceAll('\\{', '&#123;')
-
-    hast_str.update(node.position.start.offset, node.position.end.offset, value)
-  })
-
-  result = hast_str.toString()
-
-  return { content: result, placeholders }
-}
 
 async function parse_svm(md_file: string, filename: string) {
   console.log('Processing file:', filename)
@@ -172,59 +119,7 @@ async function parse_svm(md_file: string, filename: string) {
   let has_data = Object.keys(data).length > 0
   // content = content.trim()
 
-  let pre = preprocess(content)
-  content = pre.content
-
-  console.log(content)
-
-  // Todo: combine with above^ ?
   const svast = parse(content, { modern: true })
-  console.log('SVAST:')
-  console.log(svast)
-  
-  let svast_str = new MagicString(content)
-  
-  interface MdSave {
-    start: number
-    end: number
-    string: string
-  }
-
-  let md_save_parts: MdSave[] = []
-
-  // @ts-ignore
-  walk(svast.fragment, {
-    enter(node: any, parent: any, key, index) {
-      if (node.type === 'Text' && parent.type === 'Fragment') {
-        md_save_parts.push({
-          start: node.start,
-          end: node.end,
-          string: node.data,
-        })
-      } else if (node.type === 'RegularElement') {
-      }
-    },
-  })
-
-  let markdown = md_save_parts
-    .map((save) => save.string)
-    .join('\n<!--SVMD_BRK-->\n')
-  markdown = await md_to_html_str(markdown)
-  // Todo handle any <p> wraps
-  let md_save_results = markdown.split('<!--SVMD_BRK-->')
-
-  console.log(md_save_parts.length, md_save_results.length)
-
-  md_save_parts.forEach((save, i) => {
-    let result = md_save_results[i]
-    if (result === undefined) {
-      console.warn('Warn: missing result')
-      return
-    }
-    svast_str.update(save.start, save.end, result)
-  })
-
-  content = svast_str.toString()
 
   // let res = ''
 
@@ -309,13 +204,10 @@ async function parse_svm(md_file: string, filename: string) {
 }
 
 export function markdown(config: PluginConfig): Function {
-  // Todo: fix resolution (this is only shallow)
   plugin = {
     ...plugin,
     ...config,
   }
-
-  // console.log(plugin)
 
   return {
     name: 'markdown',

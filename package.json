@@ -21,8 +21,16 @@
     "build:vercel": "pnpm i && tsdown",
     "dev": "tsdown --watch"
   },
+  "devDependencies": {
+    "@sveltejs/kit": "^2.31.1",
+    "tsdown": "latest",
+    "vite": "^7.1.2",
+    "svelte": "^5.4.0"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
   "dependencies": {
-    "@starptech/prettyhtml-hast-to-html": "^0.10.0",
     "@types/mdast": "^4.0.4",
     "@types/node": "^24.3.0",
     "estree-walker": "^3.0.3",
@@ -42,15 +50,9 @@
     "shiki": "^3.9.2",
     "slash": "^5.1.0",
     "stringify-entities": "^4.0.4",
-    "svelte": "^5.38.1",
     "tinyglobby": "^0.2.14",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
     "zimmerframe": "^1.1.2"
-  },
-  "devDependencies": {
-    "@sveltejs/kit": "^2.31.1",
-    "tsdown": "latest",
-    "vite": "^7.1.2"
   }
 }
