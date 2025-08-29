@@ -279,3 +279,15 @@ Downsides
 - probably a ton of others I forgot
 
 Misc note - plugin must become a vite plugin to allow enhanced:img. Also helpful for layouts.
+
+## Other ideas
+
+- Perhaps we could not do string based? Parse the svelte ast, then somehow convert it to a mdast and stringify? probably not worth it since svast can change.
+
+
+# New idea: follow mdsx
+
+Mdsx seems to work well since its from svecosystem. What other features would I provide in addition to them?
+- file based layouts - not sure if this is good or not.
+- more correct logic/html matching?
+- access frontmatter anywhere
