@@ -1,5 +1,5 @@
 import { PluggableList } from 'unified'
-import { parse } from './parse'
+import { SvmdParser } from './parser'
 
 export interface PluginConfig {
   remarkPlugins?: PluggableList
@@ -10,11 +10,13 @@ export interface PluginConfig {
 }
 
 export function markdown(config: PluginConfig) {
+  let parser = new SvmdParser(config)
+
   return {
     name: 'markdown',
     markup({ content, filename }: { content: string; filename: string }) {
       if (filename.endsWith('.md')) {
-        return parse(content, { filename, config })
+        return parser.parse(content, filename)
       }
     },
   }

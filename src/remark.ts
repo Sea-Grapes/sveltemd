@@ -2,6 +2,14 @@ import { codeToHtml, type CodeToHastOptions } from 'shiki'
 import { Code, InlineCode, Root } from 'mdast'
 import { visit } from 'unist-util-visit'
 
+export function remarkSvelte() {
+  return async function (tree: Root) {
+    visit(tree, 'paragraph', (node) => {
+      
+    })
+  }
+}
+
 export function remarkShiki(shikiOptions: Omit<CodeToHastOptions, 'lang'>) {
   async function process(node: Code | InlineCode) {
     if (node.type === 'code') {
