@@ -1,17 +1,15 @@
-// CodeToHastOptions type is also used for codeToHtml
 import { codeToHtml, type CodeToHastOptions } from 'shiki'
 import { Code, InlineCode, Root } from 'mdast'
 import { visit } from 'unist-util-visit'
 
 export function remarkShiki(shikiOptions: Omit<CodeToHastOptions, 'lang'>) {
-  
   async function process(node: Code | InlineCode) {
     if (node.type === 'code') {
       const lang = node.lang || 'text'
       const options: CodeToHastOptions = {
         theme: 'dark-plus',
         ...(shikiOptions || {}),
-        lang
+        lang,
       }
 
       node.value = await codeToHtml(node.value, {
@@ -31,7 +29,6 @@ export function remarkShiki(shikiOptions: Omit<CodeToHastOptions, 'lang'>) {
     visit(tree, 'code', (node) => nodes.push(node))
     visit(tree, 'inlineCode', (node) => nodes.push(node))
 
-    // @ts-ignore
     await Promise.all(nodes.map((node) => process(node)))
   }
 }

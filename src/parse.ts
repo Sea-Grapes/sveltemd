@@ -1,10 +1,30 @@
+import rehypeStringify from 'rehype-stringify'
+import remarkParse from 'remark-parse'
+import remarkRehype from 'remark-rehype'
+import { unified } from 'unified'
+import { PluginConfig } from '.'
+
 interface CompileOptions {
   filename: string
-  config: Object
+  config: PluginConfig
 }
 
-async function compile(content: string, { filename }: CompileOptions) {
+export async function parse(
+  content: string,
+  { filename, config }: CompileOptions
+) {
   console.log('Processing file:', filename)
+
+  const md_parser = unified()
+    .use(remarkParse)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeStringify, { allowDangerousHtml: true })
+
+  async function md_to_html_str(string: string) {
+    let res = String(await md_parser.process(string))
+    res = res.replaceAll('{', '&#123;')
+    return res
+  }
 
   // const svast = parse(content, { modern: true })
 
