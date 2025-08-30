@@ -291,3 +291,8 @@ Mdsx seems to work well since its from svecosystem. What other features would I 
 - file based layouts - not sure if this is good or not.
 - more correct logic/html matching?
 - access frontmatter anywhere
+
+# Reasons to make a it a vite plugin
+
+- can glob layouts proplery
+- avoid using import.meta.glob to get markdown frontmatter, which every other md processor lib does. This **reparses** your files. this is bad for perf. Some other ssgs and such do a custom solution like this.
