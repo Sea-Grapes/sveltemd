@@ -1,12 +1,9 @@
-import { codeToHtml, type CodeToHastOptions } from 'shiki'
 import { Code, InlineCode, Root } from 'mdast'
+import { codeToHtml, type CodeToHastOptions } from 'shiki'
 import { visit } from 'unist-util-visit'
 
 export function remarkSvelte() {
   return async function (tree: Root) {
-    visit(tree, 'paragraph', (node) => {
-      
-    })
   }
 }
 

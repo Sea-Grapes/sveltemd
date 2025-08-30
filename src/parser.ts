@@ -3,6 +3,7 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 import { PluginConfig } from '.'
+import { remarkSvelte } from './remark'
 
 export class SvmdParser {
   config: PluginConfig
@@ -14,6 +15,7 @@ export class SvmdParser {
   async parse(content: string, filename: string) {
     const md_parser = unified()
       .use(remarkParse)
+      // .use(remarkSvelte)
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeStringify, { allowDangerousHtml: true })
 

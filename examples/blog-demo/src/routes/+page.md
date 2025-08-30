@@ -6,19 +6,14 @@
 
 this is a **test**
 
-<button onclick={() => { count++ }}>This **button** has been _clicked_ {count} times</button>
+<!-- <button onclick={() => { count++ }}>This **button** has been _clicked_ {count} times</button> -->
 
 This is some test text
 
-&#123;
+<div class="bg-slate-100">How is this? **test**</div>
 
-```js
-console.log('test')
-```
+<button>Test **test**</button>
 
-<style>
-  @reference 'tailwindcss';
-  button {
-    @apply bg-slate-100 hover:bg-slate-200 rounded-md p-1 px-2 cursor-pointer;
-  }
-</style>
+{#if true}
+  <h1>Test</h1>
+{/if}

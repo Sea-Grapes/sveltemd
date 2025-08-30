@@ -14,7 +14,7 @@ export function markdown(config: PluginConfig) {
 
   return {
     name: 'markdown',
-    markup({ content, filename }: { content: string; filename: string }) {
+    markup({ content, filename }: { content: string; filename: string }): any {
       if (filename.endsWith('.md')) {
         return parser.parse(content, filename)
       }
