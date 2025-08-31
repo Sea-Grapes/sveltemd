@@ -364,3 +364,7 @@ Example of mdast:
 ```
 
 This is easier than adding a new node type and modding things to work with it. Proper ast may be added in the future (but is it worth it to mod stringify and such?)
+
+# Another idea
+
+Perhaps we can parse an mdast first, collect the text (and html? or maybe not) from that, pass those through svast with delimiters, stringify the other mdast nodes that aren't text, and combine them just based on interleaving order.

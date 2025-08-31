@@ -2,15 +2,26 @@ import { Code, InlineCode, Root } from 'mdast'
 import { codeToHtml, type CodeToHastOptions } from 'shiki'
 import { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
-import { micromarkSvelteExtension } from './micromark.js'
+import { svmdExtension, svmdFromMarkdownTest2 } from './micromark.js'
+
+// https://github.com/mdx-js/mdx/blob/main/packages/remark-mdx/lib/index.js
 
 export const remarkSvelte: Plugin = function () {
   const data = this.data()
 
+  // Todo: evaluate use of:
+  // this.data('micromarkExtensions', [micromarkSvelteExtension()])
+  // this.data('fromMarkdownExtensions', [fromMarkdownSvelteHandler])
+
   const micromarkExtensions =
     data.micromarkExtensions || (data.micromarkExtensions = [])
 
-  micromarkExtensions.push(micromarkSvelteExtension())
+  const fromMarkdownExtensions =
+    data.fromMarkdownExtensions || (data.fromMarkdownExtensions = [])
+
+  micromarkExtensions.push(svmdExtension())
+  fromMarkdownExtensions.push(svmdFromMarkdownTest2)
+  // fromMarkdownExtensions.push(svmdFromMarkdownTest)
 }
 
 export function remarkShiki(shikiOptions: Omit<CodeToHastOptions, 'lang'>) {

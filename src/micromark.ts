@@ -6,7 +6,10 @@ import type {
   Code,
 } from 'micromark-util-types'
 
-export function micromarkSvelteExtension(): Extension {
+// https://github.com/syntax-tree/mdast-util-mdx/blob/main/lib/index.js
+import { type Extension as FromMdExtension } from 'mdast-util-from-markdown'
+
+export function svmdExtension(): Extension {
   return {
     flow: { [123]: { tokenize: handleSvelteBlock } },
     // text: { [123]: { tokenize: handleSvelteBlock } },
@@ -14,11 +17,14 @@ export function micromarkSvelteExtension(): Extension {
 }
 
 const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
+  console.log('inside handler')
+
   return start
 
   function start(code: Code): State {
     if (code !== '{'.charCodeAt(0)) return nok(code) as State
-    effects.enter('htmlFlow')
+    // @ts-ignore
+    effects.enter('svelteBlock')
     effects.consume(code)
     return afterBrace
   }
@@ -39,10 +45,51 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
     if (code === null) return nok(code) as State
     if (code === '}'.charCodeAt(0)) {
       effects.consume(code)
-      effects.exit('htmlFlow')
+      // @ts-ignore
+      effects.exit('svelteBlock')
       return ok
     }
     effects.consume(code)
     return inside
   }
 }
+
+export function svmdFromMarkdown(): Extension {
+  return {}
+}
+
+export const svmdFromMarkdownTest2: FromMdExtension = {
+  enter: {
+    svelteBlock(token) {
+      this.enter(
+        {
+          type: 'html',
+          value: this.sliceSerialize(token),
+        },
+        token
+      )
+    },
+  },
+  exit: {
+    svelteBlock(token) {
+      this.exit(token)
+    },
+  },
+}
+
+/*
+export const svmdFromMarkdownTest: FromMdExtension = {
+  enter: {
+    htmlFlow(token) {
+      // @ts-ignore
+      this.enter({ type: 'svelte', value: this.sliceSerialize(token) })
+    },
+  },
+  exit: {
+    htmlFlow() {
+      // @ts-ignore
+      this.exit({ type: 'svelte' })
+    },
+  },
+}
+*/
