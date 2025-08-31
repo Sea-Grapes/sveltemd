@@ -9,7 +9,7 @@ This file is designed to stress test a Svelte + Markdown preprocessor with vario
   let count = 0;
   let items = ['apple', 'banana', 'cherry'];
   let showContent = false;
-  
+
   // Edge case: script with markdown-like syntax in comments
   /* 
    * # This looks like markdown but it's a comment

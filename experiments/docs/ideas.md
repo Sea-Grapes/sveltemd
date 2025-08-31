@@ -296,3 +296,45 @@ Mdsx seems to work well since its from svecosystem. What other features would I 
 
 - can glob layouts proplery
 - avoid using import.meta.glob to get markdown frontmatter, which every other md processor lib does. This **reparses** your files. this is bad for perf. Some other ssgs and such do a custom solution like this.
+
+# Comparing MDSX
+
+Unfortunately the mdsx approach is not the 100% bulletproof solution I was hoping it could be, for example this fails:
+```svelte
+{#if true}
+
+This is **a** test
+{/if}
+```
+
+This is because **a** is treated as markdown in the second paragraph, so the second paragraph has 3 children: a text node, a bold node, and a text node. Therefore the {/if} is not the first child and won't get properly unwrapped.
+Additionally, the MDSX solution simply converts any non text/html nodes to plain text like `**plain**`. You will not get markdown highlighting inside these areas. This is because markdown only has a few node types, notably paragraph/html. Html will pass through everything as raw text, and paragraph will wrap in a p and cause the children to be parsed. There is no node (afaik) that does the same as paragraph without wrapping in an element.
+This could be remedied by introducing a new node type (I believe what mdx does) that does the above.
+
+
+# Simplicity
+
+Perhaps there is a way to just write small parsers that target svelte things, and either make them compatable with markdown, or heal the resulting output. The main issues are:
+- invalid html will get escaped
+- things may get wrapped incorrectly in p
+
+Possible approach: micromark customization, like mdx
+
+For logic blocks:
+- do a simple regex to match {# or {@A-Z or whatever the simple format is
+- Use svelte's util for bracket matching that takes into account js strings, etc.
+- Now we know where the logic block ends, so store this and continue parsing markdown normally
+- Probably also handle closing and such
+
+# CONCLUSION
+
+For long term stability and low-maintenance, the best approach is to rely on Svelte's parse function and escape beforehand.
+- Ultimately this can be viewed as: official svelte parser + official markdown parser + coordination layer
+
+Reasoning:
+- we don't know if svelte's syntax will change. New features may be added.
+- custom parsing is brittle and requires maintenance, and I am not skilled at parsing professionally.
+- most other md parsers in the past have edge cases and bugs.
+
+Once svelte becomes more stable (Can software ever be stable?) then a new parser could be written that understands both.
+- Alternatively, people can use MDsveX v2 or Mdsx if/when they come to fruition.

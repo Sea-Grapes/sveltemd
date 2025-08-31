@@ -1,0 +1,7 @@
+# Test File
+
+This is a test file that has both markdown and svelte
+
+<script>
+  let test = $state("test")
+</script>

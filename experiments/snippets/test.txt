@@ -1,0 +1,8 @@
+{#if test}
+
+  <h1>This is a test</h1>
+{/if}
+
+
+This is a test
+<button onclick={()=>{}}</button> // this may break? since it's the second node in a paragraph? wait no doesnt markdown view this as text??
