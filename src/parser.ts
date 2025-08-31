@@ -9,11 +9,12 @@ import { micromarkSvelteExtension } from './micromark'
 export class SvmdParser {
   config: PluginConfig
 
-  constructor(config: PluginConfig) {
-    this.config = config
+  constructor(config?: PluginConfig) {
+    // Todo: default config + merging
+    this.config = config ?? {}
   }
 
-  async parse(content: string, filename: string) {
+  async parse(content: string, filename?: string) {
     const md_parser = unified()
       .use(remarkParse, { extensions: [micromarkSvelteExtension()] })
       // .use(remarkSvelte)
@@ -39,7 +40,7 @@ export class SvmdParser {
 
 export function parse(
   content: string,
-  { config, filename }: { config: PluginConfig; filename: string }
+  { config, filename }: { config?: PluginConfig; filename?: string } = {}
 ) {
   const parser = new SvmdParser(config)
   return parser.parse(content, filename)

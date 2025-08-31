@@ -21,3 +21,5 @@ export function markdown(config: PluginConfig) {
     },
   }
 }
+
+export * from './parser'
