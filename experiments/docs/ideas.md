@@ -338,3 +338,29 @@ Reasoning:
 
 Once svelte becomes more stable (Can software ever be stable?) then a new parser could be written that understands both.
 - Alternatively, people can use MDsveX v2 or Mdsx if/when they come to fruition.
+
+# Actually
+
+Erm actually screw that im gonna make a micromark extension and copy mdx and it'll be great trust
+
+New plan:
+- theoretically, all we have to do is detect logic and supercharged-svelte-html properly, then put it in a seperate html mdast node. This will get remark-rehype'd into a raw node, and it will be all fine and dandy.
+
+Example of mdast:
+```js
+[
+  {
+    type: "html", value: "{#if true}"
+  },
+  {
+    type: "paragraph", children: ...
+  },
+  {
+    type: "html", value: "{:else}"
+  }
+  ... etc
+]
+
+```
+
+This is easier than adding a new node type and modding things to work with it. Proper ast may be added in the future (but is it worth it to mod stringify and such?)

@@ -15,7 +15,7 @@ export class SvmdParser {
   async parse(content: string, filename: string) {
     const md_parser = unified()
       .use(remarkParse)
-      // .use(remarkSvelte)
+      .use(remarkSvelte)
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeStringify, { allowDangerousHtml: true })
 

@@ -1,10 +1,16 @@
 import { Code, InlineCode, Root } from 'mdast'
 import { codeToHtml, type CodeToHastOptions } from 'shiki'
+import { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
+import { micromarkSvelteExtension } from './micromark.js'
 
-export function remarkSvelte() {
-  return async function (tree: Root) {
-  }
+export const remarkSvelte: Plugin = function () {
+  const data = this.data()
+
+  const micromarkExtensions =
+    data.micromarkExtensions || (data.micromarkExtensions = [])
+
+  micromarkExtensions.push(micromarkSvelteExtension())
 }
 
 export function remarkShiki(shikiOptions: Omit<CodeToHastOptions, 'lang'>) {
