@@ -3,7 +3,7 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 import { PluginConfig } from '.'
-import { remarkSvelte } from './remark'
+import { remarkSvelte } from './unified/remark'
 
 export class SvmdParser {
   config: PluginConfig
