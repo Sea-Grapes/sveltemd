@@ -46,7 +46,8 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
     if (
       code === '#'.charCodeAt(0) ||
       code === ':'.charCodeAt(0) ||
-      code === '/'.charCodeAt(0)
+      code === '/'.charCodeAt(0) ||
+      code === '@'.charCodeAt(0)
     ) {
       effects.consume(code)
       return inside

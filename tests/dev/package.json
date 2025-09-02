@@ -1,7 +1,7 @@
 {
   "name": "tests",
   "scripts": {
-    "dev": "bun index.ts"
+    "dev": "bun basic/index.ts"
   },
   "module": "index.ts",
   "type": "module",

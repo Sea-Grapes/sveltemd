@@ -14,29 +14,28 @@ export class SvmdParser {
   }
 
   async parse(content: string, filename?: string) {
-    const md_parser = unified()
+    //mdast/hast printing test
+    const parser = unified()
       .use(remarkParse)
       .use(remarkSvelte)
       .use(remarkRehype, { allowDangerousHtml: true })
-      // .use(rehypeStringify, { allowDangerousHtml: true })
 
-      const mdast = await md_parser.parse(content)
-      const hast = await md_parser.run(mdast)
+    const mdast = await parser.parse(content)
+    const hast = await parser.run(mdast)
+    console.log(JSON.stringify(mdast, null, 2))
+    let res = ''
 
-      console.log(JSON.stringify(hast, null, 2))
-    // const ast = await md_parser.process(content)
-    // console.log(ast.value)
+    // const parser = unified()
+    //   .use(remarkParse)
+    //   .use(remarkSvelte)
+    //   .use(remarkRehype, { allowDangerousHtml: true })
+    //   .use(rehypeStringify, { allowDangerousHtml: true })
 
-    // async function md_to_html_str(string: string) {
-    //   let res = String(await md_parser.process(string))
-    //   res = res.replaceAll('{', '&#123;')
-    //   return res
-    // }
-
-    // let tmp = await md_to_html_str(content)
+    // let vfile = await parser.process(content)
+    // let res = String(vfile)
 
     return {
-      code: '',
+      code: res,
     }
   }
 }

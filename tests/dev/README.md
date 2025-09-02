@@ -2,6 +2,9 @@
 
 This file contains basic tests for the dev process.
 
+`bun dev` - run the basic test file, which is just for input/output during dev.
+`cd test && bun test (file).test.ts` - run specific tests
+
 ## Generated
 
 To install dependencies:
