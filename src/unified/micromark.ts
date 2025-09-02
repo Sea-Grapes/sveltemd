@@ -66,7 +66,7 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
     if (code === '}'.charCodeAt(0)) {
       depth--
       effects.consume(code)
-      if (depth == 0) {
+      if (depth === 0) {
         effects.exit('svelteBlock')
         return ok
       }
@@ -97,7 +97,7 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
 
     if (code === '*'.charCodeAt(0)) {
       effects.consume(code)
-      return inBlockContent
+      return inBlockComment
     }
 
     return inRegex(code)
@@ -111,11 +111,11 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
     return inLineComment
   }
 
-  function inBlockContent(code: Code): State {
+  function inBlockComment(code: Code): State {
     if (code === null) return nok(code) as State
     effects.consume(code)
     if (code === '*'.charCodeAt(0)) return afterBlockCommentStar
-    return inBlockContent
+    return inBlockComment
   }
 
   function afterBlockCommentStar(code: Code): State {
@@ -124,7 +124,7 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
       effects.consume(code)
       return inside
     }
-    return inBlockContent(code)
+    return inBlockComment(code)
   }
 
   // Todo: evaluate correctness
