@@ -6,12 +6,18 @@ import type {
   Code,
 } from 'micromark-util-types'
 
+declare module 'micromark-util-types' {
+  interface TokenTypeMap {
+    svelteBlock: 'svelteBlock'
+  }
+}
+
 // https://github.com/syntax-tree/mdast-util-mdx/blob/main/lib/index.js
 import { type Extension as FromMdExtension } from 'mdast-util-from-markdown'
 
 export function svmdExtension(): Extension {
   return {
-    flow: { [123]: { tokenize: handleSvelteBlock } },
+    // flow: { [123]: { tokenize: handleSvelteBlock } },
     text: { [123]: { tokenize: handleSvelteBlock } },
   }
 }
@@ -24,13 +30,13 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
 
   function start(code: Code): State {
     if (code !== '{'.charCodeAt(0)) return nok(code) as State
-    // @ts-ignore
     effects.enter('svelteBlock')
     effects.consume(code)
     depth = 1
     return afterBrace
   }
 
+  // Todo: add other symbols and word match
   function afterBrace(code: Code): State {
     if (
       code === '#'.charCodeAt(0) ||
@@ -47,7 +53,6 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
     if (code === null) return nok(code) as State
     if (code === '}'.charCodeAt(0)) {
       effects.consume(code)
-      // @ts-ignore
       effects.exit('svelteBlock')
       return ok
     }
