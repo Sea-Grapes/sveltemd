@@ -368,3 +368,7 @@ This is easier than adding a new node type and modding things to work with it. P
 # Another idea
 
 Perhaps we can parse an mdast first, collect the text (and html? or maybe not) from that, pass those through svast with delimiters, stringify the other mdast nodes that aren't text, and combine them just based on interleaving order.
+
+# ACTUAL CONCLUSION
+
+The best way for perf and stability is to copy mdx. That is, add a micromark extension to handle the syntax properly at a root level. This avoids parser conflict and doesn't depend on escaping + hacky reconcile methods.

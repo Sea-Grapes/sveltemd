@@ -18,6 +18,7 @@ export function svmdExtension(): Extension {
 
 const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
   console.log('inside handler')
+  let depth = 0
 
   return start
 
@@ -26,6 +27,7 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
     // @ts-ignore
     effects.enter('svelteBlock')
     effects.consume(code)
+    depth = 1
     return afterBrace
   }
 
