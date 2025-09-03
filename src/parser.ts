@@ -4,7 +4,6 @@ import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 import { PluginConfig } from '.'
 import { remarkSvelte } from './unified/remark'
-import type { Handler } from 'mdast-util-to-hast'
 
 export class SvmdParser {
   config: PluginConfig
@@ -15,21 +14,12 @@ export class SvmdParser {
   }
 
   async parse(content: string, filename?: string) {
-    const svelteBlock: Handler = (h, node) => {
-      // console.log('HANDLING SVELTE BLOCK')
-      return { type: 'raw', value: node.value }
-    }
-
     const parser = unified()
       .use(remarkParse)
       .use(remarkSvelte)
       // @ts-ignore
       .use(remarkRehype, {
         allowDangerousHtml: true,
-        // passThrough: ['svelteBlock'],
-        // handlers: {
-        //   svelteBlock,
-        // },
       })
       .use(rehypeStringify, { allowDangerousHtml: true })
 

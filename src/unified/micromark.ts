@@ -29,10 +29,6 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
 
   function start(code: Code): State {
     if (code !== '{'.charCodeAt(0)) return nok(code) as State
-    // console.log(effects)
-    // @ts-ignore
-    // console.log(this.state.context[this.state.context.length-1])
-    // effects.exit('paragraph')
     effects.enter('svelteBlock')
     effects.consume(code)
     depth = 1
