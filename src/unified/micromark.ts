@@ -1,10 +1,4 @@
-import type {
-  Extension,
-  Tokenizer,
-  State,
-  Effects,
-  Code,
-} from 'micromark-util-types'
+import type { Code, Extension, State, Tokenizer } from 'micromark-util-types'
 
 declare module 'micromark-util-types' {
   interface TokenTypeMap {
@@ -17,7 +11,7 @@ import { type Extension as FromMdExtension } from 'mdast-util-from-markdown'
 
 export function svmdExtension(): Extension {
   return {
-    // flow: { [123]: { tokenize: handleSvelteBlock } },
+    flow: { [123]: { tokenize: handleSvelteBlock } },
     text: { [123]: { tokenize: handleSvelteBlock } },
   }
 }
@@ -186,11 +180,7 @@ const handleSvelteBlock: Tokenizer = function (effects, ok, nok) {
   }
 }
 
-export function svmdFromMarkdown(): Extension {
-  return {}
-}
-
-export const svmdFromMarkdownTest2: FromMdExtension = {
+export const svmdFromMarkdown: FromMdExtension = {
   enter: {
     svelteBlock(token) {
       this.enter(
@@ -209,20 +199,3 @@ export const svmdFromMarkdownTest2: FromMdExtension = {
     },
   },
 }
-
-/*
-export const svmdFromMarkdownTest: FromMdExtension = {
-  enter: {
-    htmlFlow(token) {
-      // @ts-ignore
-      this.enter({ type: 'svelte', value: this.sliceSerialize(token) })
-    },
-  },
-  exit: {
-    htmlFlow() {
-      // @ts-ignore
-      this.exit({ type: 'svelte' })
-    },
-  },
-}
-*/

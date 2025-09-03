@@ -1,1 +1,5 @@
-This is a test{#if true}# test{/if}
+{#if true}
+
+# test
+
+{/if}
