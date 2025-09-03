@@ -1,5 +1,1 @@
-{#if true}
-
-# test
-
-{/if}
+{#if true}# test{/if}

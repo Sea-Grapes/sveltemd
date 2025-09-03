@@ -26,21 +26,21 @@ export class SvmdParser {
       // @ts-ignore
       .use(remarkRehype, {
         allowDangerousHtml: true,
-        passThrough: ['svelteBlock'],
-        handlers: {
-          svelteBlock,
-        },
+        // passThrough: ['svelteBlock'],
+        // handlers: {
+        //   svelteBlock,
+        // },
       })
-    // .use(rehypeStringify, { allowDangerousHtml: true })
+      // .use(rehypeStringify, { allowDangerousHtml: true })
 
     const mdast = await parser.parse(content)
     const hast = await parser.run(mdast)
-    console.log(JSON.stringify(hast, null, 2))
+    console.log(JSON.stringify(mdast, null, 2))
+    let res = ''
 
     // let vfile = await parser.process(content)
     // let res = String(vfile)
 
-    let res = ''
     return {
       code: res,
     }
