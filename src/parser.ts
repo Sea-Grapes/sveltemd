@@ -31,15 +31,15 @@ export class SvmdParser {
         //   svelteBlock,
         // },
       })
-      // .use(rehypeStringify, { allowDangerousHtml: true })
+      .use(rehypeStringify, { allowDangerousHtml: true })
 
-    const mdast = await parser.parse(content)
-    const hast = await parser.run(mdast)
-    console.log(JSON.stringify(mdast, null, 2))
-    let res = ''
+    // const mdast = await parser.parse(content)
+    // const hast = await parser.run(mdast)
+    // console.log(JSON.stringify(mdast, null, 2))
+    // let res = ''
 
-    // let vfile = await parser.process(content)
-    // let res = String(vfile)
+    let vfile = await parser.process(content)
+    let res = String(vfile)
 
     return {
       code: res,
@@ -47,10 +47,11 @@ export class SvmdParser {
   }
 }
 
-export function parse(
+export async function parse(
   content: string,
   { config, filename }: { config?: PluginConfig; filename?: string } = {}
 ) {
   const parser = new SvmdParser(config)
-  return parser.parse(content, filename)
+  let res = await parser.parse(content, filename)
+  return res
 }

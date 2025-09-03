@@ -19,14 +19,6 @@ export const remarkSvelte: Plugin = function () {
   fromMarkdownExtensions.push(svmdFromMarkdown)
 }
 
-// Since svelte logic can be parsed anywhere (in svelte's parser), they are "inline" for micromark
-// However this will make it be wrapped in paragraph which we don't want.
-// We can either unwrap it here or in micromark, testing
-export const remarkUnwrapSvelte: Plugin = function() {
-  
-}
-
-
 export function remarkShiki(shikiOptions: Omit<CodeToHastOptions, 'lang'>) {
   async function process(node: Code | InlineCode) {
     if (node.type === 'code') {

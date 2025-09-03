@@ -1,9 +1,7 @@
-{#if cond}
+This is a test {#if true} test {/if}
 
-- hello
-
-{:else}
-
-- world
-
-{/if}
+> This is a test
+> {#if true}
+> test
+> {/if}
+> test
