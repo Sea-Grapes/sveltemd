@@ -16,7 +16,7 @@ export class SvmdParser {
 
   async parse(content: string, filename?: string) {
     const svelteBlock: Handler = (h, node) => {
-      console.log('HANDLING SVELTE BLOCK')
+      // console.log('HANDLING SVELTE BLOCK')
       return { type: 'raw', value: node.value }
     }
 
