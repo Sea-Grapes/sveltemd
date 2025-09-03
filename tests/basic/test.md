@@ -1,1 +1,9 @@
-{#if true}# test{/if}
+{#if cond}
+
+- hello
+
+{:else}
+
+- world
+
+{/if}

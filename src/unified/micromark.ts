@@ -11,7 +11,7 @@ import { type Extension as FromMdExtension } from 'mdast-util-from-markdown'
 
 export function svmdExtension(): Extension {
   return {
-    flow: { [123]: { tokenize: handleSvelteBlock } },
+    // flow: { [123]: { tokenize: handleSvelteBlock } },
     text: { [123]: { tokenize: handleSvelteBlock } },
   }
 }
