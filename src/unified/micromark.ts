@@ -195,6 +195,7 @@ export const svmdFromMarkdownTest2: FromMdExtension = {
     svelteBlock(token) {
       this.enter(
         {
+          // @ts-ignore
           type: 'html',
           value: this.sliceSerialize(token),
         },

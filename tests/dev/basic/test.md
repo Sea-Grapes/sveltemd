@@ -6,4 +6,4 @@ This is a basic test markdown file
 
 {#if true}
 # test
-{/f}
+{/if}
