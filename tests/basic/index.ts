@@ -1,4 +1,4 @@
-import { parse } from '../../../src'
+import { parse } from '../../src'
 
 const path = 'basic/test.md'
 const file = Bun.file(path)

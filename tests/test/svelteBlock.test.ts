@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test'
 import remarkParse from 'remark-parse'
 import { unified } from 'unified'
-import { remarkSvelte } from '../../../src/unified/remark'
-import { SvmdParser } from '../../../src'
+import { remarkSvelte } from '../../src/unified/remark'
+import { SvmdParser } from '../../src'
 
 const mdast_parser = unified().use(remarkParse).use(remarkSvelte)
 const parser = new SvmdParser()
