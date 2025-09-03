@@ -15,17 +15,6 @@ export class SvmdParser {
   }
 
   async parse(content: string, filename?: string) {
-    //mdast/hast printing test
-    // const parser = unified()
-    //   .use(remarkParse)
-    //   .use(remarkSvelte)
-    //   .use(remarkRehype, { allowDangerousHtml: true })
-
-    // const mdast = await parser.parse(content)
-    // const hast = await parser.run(mdast)
-    // console.log(JSON.stringify(mdast, null, 2))
-    // let res = ''
-
     const svelteBlock: Handler = (h, node) => {
       console.log('HANDLING SVELTE BLOCK')
       return { type: 'raw', value: node.value }
@@ -46,7 +35,7 @@ export class SvmdParser {
 
     const mdast = await parser.parse(content)
     const hast = await parser.run(mdast)
-    console.log(JSON.stringify(mdast, null, 2))
+    console.log(JSON.stringify(hast, null, 2))
 
     // let vfile = await parser.process(content)
     // let res = String(vfile)
