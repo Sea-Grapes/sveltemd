@@ -1,3 +1,6 @@
+
+// https://github.com/syntax-tree/mdast-util-mdx/blob/main/lib/index.js
+import { type Extension as FromMdExtension } from 'mdast-util-from-markdown'
 import type { Code, Extension, State, Tokenizer } from 'micromark-util-types'
 
 declare module 'micromark-util-types' {
@@ -5,9 +8,6 @@ declare module 'micromark-util-types' {
     svelteBlock: 'svelteBlock'
   }
 }
-
-// https://github.com/syntax-tree/mdast-util-mdx/blob/main/lib/index.js
-import { type Extension as FromMdExtension } from 'mdast-util-from-markdown'
 
 export function svmdExtension(): Extension {
   return {
